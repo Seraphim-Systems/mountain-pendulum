@@ -53,7 +53,9 @@ class AugmentStateWrapper(gym.ObservationWrapper):
 
         self.observation_space = gym.spaces.Box(
             low=np.array([base_low[0], base_low[1], 0.0, -1.0], dtype=np.float32),
-            high=np.array([base_high[0], base_high[1], kinetic_max, 1.0], dtype=np.float32),
+            high=np.array(
+                [base_high[0], base_high[1], kinetic_max, 1.0], dtype=np.float32
+            ),
             shape=(4,),
             dtype=np.float32,
         )

@@ -81,7 +81,9 @@ def build_agent(config: dict[str, Any], env: Any) -> Any:
     raise ValueError(f"Unsupported agent type: {agent_name}")
 
 
-def rollout_episode(env: Any, agent: Any, deterministic: bool = True) -> tuple[float, int, bool]:
+def rollout_episode(
+    env: Any, agent: Any, deterministic: bool = True
+) -> tuple[float, int, bool]:
     """Run one full episode for evaluation."""
     obs, _ = env.reset()
     done = False
@@ -104,7 +106,9 @@ def rollout_episode(env: Any, agent: Any, deterministic: bool = True) -> tuple[f
     return total_reward, steps, success
 
 
-def train_single_seed(config: dict[str, Any], seed: int, project_root: Path) -> dict[str, Any]:
+def train_single_seed(
+    config: dict[str, Any], seed: int, project_root: Path
+) -> dict[str, Any]:
     """Train one seed and persist metrics/checkpoints."""
     output_paths = ensure_paths(config, project_root)
     seed_everything(seed)
@@ -150,7 +154,9 @@ def train_single_seed(config: dict[str, Any], seed: int, project_root: Path) -> 
             agent.on_episode_end()
         else:
             agent.learn(total_timesteps=max_steps)
-            ep_reward, ep_len, ep_success = rollout_episode(env, agent, deterministic=True)
+            ep_reward, ep_len, ep_success = rollout_episode(
+                env, agent, deterministic=True
+            )
 
         rewards.append(ep_reward)
         lengths.append(ep_len)
@@ -194,7 +200,9 @@ def train_single_seed(config: dict[str, Any], seed: int, project_root: Path) -> 
         "reward_std": float(np.std(rewards)),
         "success_rate": float(np.mean(successes)),
         "mean_episode_length": float(np.mean(lengths)),
-        "eval_mean_reward_last": float(eval_mean_rewards[-1] if eval_mean_rewards else np.mean(rewards)),
+        "eval_mean_reward_last": float(
+            eval_mean_rewards[-1] if eval_mean_rewards else np.mean(rewards)
+        ),
         "final_model_path": str(final_model_path),
     }
 
@@ -240,8 +248,14 @@ def train_experiment(config_path: str, project_root: str) -> None:
     }
 
     output_paths = ensure_paths(config, root)
-    df.to_csv(output_paths["logs_dir"] / f"{config['experiment_name']}_seed_results.csv", index=False)
-    dump_json(aggregate, output_paths["logs_dir"] / f"{config['experiment_name']}_aggregate.json")
+    df.to_csv(
+        output_paths["logs_dir"] / f"{config['experiment_name']}_seed_results.csv",
+        index=False,
+    )
+    dump_json(
+        aggregate,
+        output_paths["logs_dir"] / f"{config['experiment_name']}_aggregate.json",
+    )
     print("Training complete.")
     print(aggregate)
 

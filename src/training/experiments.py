@@ -33,7 +33,9 @@ def run_experiment_suite(config_paths: list[str], project_root: str) -> Path:
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments for experiment suite execution."""
-    parser = argparse.ArgumentParser(description="Run multiple Mountain Car experiments.")
+    parser = argparse.ArgumentParser(
+        description="Run multiple Mountain Car experiments."
+    )
     parser.add_argument(
         "--configs",
         nargs="+",

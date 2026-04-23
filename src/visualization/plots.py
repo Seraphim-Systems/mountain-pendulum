@@ -25,7 +25,9 @@ def plot_reward_curve(df: pd.DataFrame, output_path: str | Path) -> None:
     plt.close()
 
 
-def plot_success_curve(df: pd.DataFrame, output_path: str | Path, window: int = 50) -> None:
+def plot_success_curve(
+    df: pd.DataFrame, output_path: str | Path, window: int = 50
+) -> None:
     """Plot moving-average success rate over episodes."""
     rolling = df["success"].rolling(window=window, min_periods=1).mean()
     plt.figure(figsize=(9, 4))

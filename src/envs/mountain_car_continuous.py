@@ -18,7 +18,11 @@ def make_continuous_env(
     wrappers = wrappers or {}
 
     if wrappers.get("energy_shaping"):
-        kwargs = wrappers["energy_shaping"] if isinstance(wrappers["energy_shaping"], dict) else {}
+        kwargs = (
+            wrappers["energy_shaping"]
+            if isinstance(wrappers["energy_shaping"], dict)
+            else {}
+        )
         env = EnergyShapingRewardWrapper(env, **kwargs)
 
     if wrappers.get("record_episode_stats"):

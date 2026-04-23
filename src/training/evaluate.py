@@ -17,7 +17,9 @@ from src.utils.logging import dump_json
 from src.utils.seeding import seed_env, seed_everything
 
 
-def load_agent_from_checkpoint(config: dict[str, Any], env: Any, checkpoint_path: str) -> Any:
+def load_agent_from_checkpoint(
+    config: dict[str, Any], env: Any, checkpoint_path: str
+) -> Any:
     """Instantiate and restore agent based on config and checkpoint file."""
     agent = build_agent(config, env)
     if isinstance(agent, QLearningAgent):

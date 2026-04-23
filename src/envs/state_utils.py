@@ -36,4 +36,6 @@ def augment_state(observation: np.ndarray) -> np.ndarray:
     velocity = float(observation[1])
     kinetic_energy = 0.5 * velocity * velocity
     potential_proxy = np.sin(3.0 * position)
-    return np.array([position, velocity, kinetic_energy, potential_proxy], dtype=np.float32)
+    return np.array(
+        [position, velocity, kinetic_energy, potential_proxy], dtype=np.float32
+    )

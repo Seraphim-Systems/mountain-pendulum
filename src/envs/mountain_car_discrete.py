@@ -6,7 +6,11 @@ from typing import Any
 
 import gymnasium as gym
 
-from .wrappers import AugmentStateWrapper, DiscretizeStateWrapper, RecordEpisodeStatsWrapper
+from .wrappers import (
+    AugmentStateWrapper,
+    DiscretizeStateWrapper,
+    RecordEpisodeStatsWrapper,
+)
 
 
 def make_discrete_env(
@@ -18,7 +22,11 @@ def make_discrete_env(
     wrappers = wrappers or {}
 
     if wrappers.get("discretize_state"):
-        kwargs = wrappers["discretize_state"] if isinstance(wrappers["discretize_state"], dict) else {}
+        kwargs = (
+            wrappers["discretize_state"]
+            if isinstance(wrappers["discretize_state"], dict)
+            else {}
+        )
         env = DiscretizeStateWrapper(env, **kwargs)
 
     if wrappers.get("augment_state"):
