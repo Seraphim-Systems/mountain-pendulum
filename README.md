@@ -144,6 +144,7 @@ This repository now includes a separate visualization demo that is intentionally
 - Assets are loaded from `assets/maps/` and `assets/sprites/`.
 - If no compatible map or sprite is present, the demo falls back to procedural generation.
 - The demo renders a top-down car, wall collisions, goal marker, and ray probes.
+- The current default demo uses the copied reference art from `RLI_17_A0` (`race_track_ie.png` and `car.png`) when available.
 
 How it works:
 
@@ -156,6 +157,8 @@ Training and running the demo:
 
 - Train the visualization agent:
   - `python -m src.training.train_sensor_visual --asset-root assets --timesteps 80000 --output-model outputs/models/sensor_dqn --seed 42`
+- Run the live window demo:
+  - `python -m src.visualization.live_demo --asset-root assets --steps 10 --fps 10 --seed 42`
 - Run the procedural or asset-backed demo:
   - `python -m src.visualization.sensor_demo --asset-root assets --output outputs/figures/sensor_car_demo.gif --episodes 2 --max-steps 120 --fps 15 --seed 42`
 

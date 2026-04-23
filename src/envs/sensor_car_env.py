@@ -19,6 +19,15 @@ class MapAssets:
     sprite_source: str
 
 
+@dataclass
+class MapData:
+    """In-memory map representation used for occupancy and rendering."""
+
+    occupancy: np.ndarray
+    background: np.ndarray | None
+    source: str
+
+
 def _first_image_path(folder: Path) -> Path | None:
     """Return the first supported image file from a folder, if any."""
     if not folder.exists():
@@ -51,27 +60,42 @@ def _generate_procedural_map(height: int = 256, width: int = 384) -> np.ndarray:
     return occ
 
 
-def _load_or_generate_map(map_dir: Path) -> tuple[np.ndarray, str]:
+def _load_or_generate_map(map_dir: Path) -> MapData:
     """Load occupancy map from assets, or generate one procedurally."""
     image_path = _first_image_path(map_dir)
     if image_path is None:
-        return _generate_procedural_map(), "procedural"
+        occupancy = _generate_procedural_map()
+        return MapData(occupancy=occupancy, background=None, source="procedural")
 
     image = iio.imread(image_path)
-    if image.ndim == 3:
-        image = image[..., :3].mean(axis=2)
+    background = image[..., :3].astype(np.uint8) if image.ndim == 3 else None
 
-    # Dark = wall, bright = free.
-    occupancy = (image < 128).astype(np.uint8)
+    if image.ndim == 3:
+        red = image[..., 0].astype(np.int16)
+        green = image[..., 1].astype(np.int16)
+        blue = image[..., 2].astype(np.int16)
+
+        green_background = (green > red + 35) & (green > blue + 35) & (green > 80)
+        green_ratio = float(np.mean(green_background))
+
+        if green_ratio > 0.08:
+            occupancy = green_background.astype(np.uint8)
+        else:
+            gray = image[..., :3].mean(axis=2)
+            occupancy = (gray < 128).astype(np.uint8)
+    else:
+        occupancy = (image < 128).astype(np.uint8)
+
     if occupancy.sum() == 0:
-        return _generate_procedural_map(), "procedural"
+        fallback = _generate_procedural_map()
+        return MapData(occupancy=fallback, background=None, source="procedural")
 
     # Ensure hard border walls even for custom maps.
     occupancy[:2, :] = 1
     occupancy[-2:, :] = 1
     occupancy[:, :2] = 1
     occupancy[:, -2:] = 1
-    return occupancy, str(image_path)
+    return MapData(occupancy=occupancy, background=background, source=str(image_path))
 
 
 def _load_sprite(sprite_dir: Path, size: int = 18) -> tuple[np.ndarray | None, str]:
@@ -120,9 +144,11 @@ class SensorCarEnv(gym.Env[np.ndarray, int]):
         self.probe_max_distance = float(probe_max_distance)
 
         root = Path(asset_root)
-        self.occupancy, map_source = _load_or_generate_map(root / "maps")
+        map_data = _load_or_generate_map(root / "maps")
+        self.occupancy = map_data.occupancy
+        self.background = map_data.background
         self.sprite_rgba, sprite_source = _load_sprite(root / "sprites")
-        self.assets = MapAssets(map_source=map_source, sprite_source=sprite_source)
+        self.assets = MapAssets(map_source=map_data.source, sprite_source=sprite_source)
 
         self.height, self.width = self.occupancy.shape
 
@@ -366,9 +392,12 @@ class SensorCarEnv(gym.Env[np.ndarray, int]):
 
     def render(self) -> np.ndarray:
         """Render current state to an RGB array frame."""
-        free = np.array([240, 240, 240], dtype=np.uint8)
-        wall = np.array([28, 30, 34], dtype=np.uint8)
-        frame = np.where(self.occupancy[..., None] == 1, wall, free).astype(np.uint8)
+        if self.background is not None and self.background.shape[:2] == self.occupancy.shape:
+            frame = self.background.copy()
+        else:
+            free = np.array([240, 240, 240], dtype=np.uint8)
+            wall = np.array([28, 30, 34], dtype=np.uint8)
+            frame = np.where(self.occupancy[..., None] == 1, wall, free).astype(np.uint8)
 
         gx = int(round(float(self._goal[0])))
         gy = int(round(float(self._goal[1])))

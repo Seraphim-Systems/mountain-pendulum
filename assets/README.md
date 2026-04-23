@@ -8,3 +8,5 @@ Place optional external assets here.
 - `sprites/`: car sprite images (PNG with alpha channel preferred)
 
 If no compatible map or sprite exists, the visualization system falls back to fully procedural generation.
+
+The repository currently ships with copied reference art from `RLI_17_A0` so the demo works out of the box.
