@@ -89,6 +89,26 @@ class EnergyShapingRewardWrapper(gym.Wrapper):
         return obs, shaped_reward, terminated, truncated, info
 
 
+class DiscreteFuelCostWrapper(gym.Wrapper):
+    """Scenario 3: penalise left/right actions (-1 each); idle is free; +100 at goal."""
+
+    def step(self, action: int) -> tuple[np.ndarray, float, bool, bool, dict]:
+        obs, _, terminated, truncated, info = self.env.step(action)
+        fuel_cost = 0.0 if int(action) == 1 else -1.0
+        reward = fuel_cost + (100.0 if terminated else 0.0)
+        return obs, reward, terminated, truncated, info
+
+
+class ContinuousStepCostWrapper(gym.Wrapper):
+    """Scenario 4: linear cost -0.1*|action| per step (vs. quadratic standard); +100 at goal."""
+
+    def step(self, action: np.ndarray) -> tuple[np.ndarray, float, bool, bool, dict]:
+        obs, _, terminated, truncated, info = self.env.step(action)
+        linear_cost = -0.1 * float(np.abs(np.asarray(action)).sum())
+        reward = linear_cost + (100.0 if terminated else 0.0)
+        return obs, reward, terminated, truncated, info
+
+
 class RecordEpisodeStatsWrapper(gym.Wrapper):
     """Track per-episode reward, length, and success outcomes."""
 
