@@ -8,6 +8,7 @@ import gymnasium as gym
 
 from .wrappers import (
     AugmentStateWrapper,
+    DiscreteFuelCostWrapper,
     DiscretizeStateWrapper,
     RecordEpisodeStatsWrapper,
 )
@@ -21,6 +22,12 @@ def make_discrete_env(
     env = gym.make("MountainCar-v0", render_mode=render_mode)
     wrappers = wrappers or {}
 
+    if wrappers.get("discretize_state") and wrappers.get("augment_state"):
+        raise ValueError(
+            "discretize_state and augment_state are mutually exclusive: "
+            "DiscretizeStateWrapper produces MultiDiscrete, which AugmentStateWrapper cannot consume."
+        )
+
     if wrappers.get("discretize_state"):
         kwargs = (
             wrappers["discretize_state"]
@@ -31,6 +38,9 @@ def make_discrete_env(
 
     if wrappers.get("augment_state"):
         env = AugmentStateWrapper(env)
+
+    if wrappers.get("fuel_cost"):
+        env = DiscreteFuelCostWrapper(env)
 
     if wrappers.get("record_episode_stats"):
         env = RecordEpisodeStatsWrapper(env)

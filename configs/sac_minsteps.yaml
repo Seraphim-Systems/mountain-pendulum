@@ -1,0 +1,27 @@
+experiment_name: sac_minsteps
+agent: sac
+env:
+  id: MountainCarContinuous-v0
+  wrappers:
+    step_cost: true
+    record_episode_stats: true
+train:
+  episodes: 300
+  max_steps_per_episode: 999
+  eval_every: 25
+  eval_episodes: 20
+  seeds: [7, 21, 42]
+  save_every: 50
+sac:
+  learning_rate: 0.0003
+  gamma: 0.99
+  tau: 0.005
+  alpha: auto
+  batch_size: 256
+  replay_buffer_size: 100000
+  learning_starts: 1000
+  hidden_sizes: [256, 256]
+paths:
+  logs_dir: outputs/logs
+  models_dir: outputs/models
+  figures_dir: outputs/figures
