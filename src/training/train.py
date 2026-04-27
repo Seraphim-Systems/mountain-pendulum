@@ -150,13 +150,23 @@ def train_single_seed(
 
     run_name = f"{config['experiment_name']}_seed{seed}"
     writer = make_writer(output_paths["logs_dir"], run_name)
-    print(f"\n{'='*60}\n{run_name}  ({config['agent']} | {config['env']['id']})\n{'='*60}", flush=True)
 
     episodes = int(config["train"]["episodes"])
     max_steps = int(config["train"]["max_steps_per_episode"])
     eval_every = int(config["train"]["eval_every"])
     eval_episodes = int(config["train"]["eval_episodes"])
     save_every = int(config["train"]["save_every"])
+
+    print(f"\n{'='*64}", flush=True)
+    print(f"  {run_name}", flush=True)
+    print(f"  agent={config['agent']}  env={config['env']['id']}", flush=True)
+    print(f"  generations={episodes}  pop_steps={max_steps}  eval_every={eval_every}", flush=True)
+    print(f"{'='*64}", flush=True)
+    print(f"  {'Gen':>6}  {'Train':>8}  {'Eval':>8}  {'Success':>7}  {'BestEver':>9}  {'PopStd':>8}  {'Extra'}", flush=True)
+    print(f"  {'-'*6}  {'-'*8}  {'-'*8}  {'-'*7}  {'-'*9}  {'-'*8}  {'-'*14}", flush=True)
+
+    import time as _time
+    _t0 = _time.perf_counter()
 
     rewards: list[float] = []
     lengths: list[int] = []
@@ -225,21 +235,44 @@ def train_single_seed(
             writer.add_scalar("eval/success_rate", mean_eval_success, episode)
 
             recent_reward = float(np.mean(rewards[-eval_every:]))
-            best_fitness_str = ""
-            if hasattr(agent, "_best_fitness"):
-                best_fitness_str = f"  best={agent._best_fitness:.1f}"
+            best_ever = getattr(agent, "_best_fitness", float("nan"))
+            cur_pop_std = pop_stds[-1] if pop_stds and not np.isnan(pop_stds[-1]) else float("nan")
+            elapsed = _time.perf_counter() - _t0
+            eta = (elapsed / episode) * (episodes - episode)
+
+            extra_parts = []
+            if hasattr(agent, "_population") and hasattr(agent._population, "species"):
+                n_species = len(agent._population.species.species)
+                extra_parts.append(f"species={n_species}")
+            if hasattr(agent, "_es"):
+                extra_parts.append(f"σ={agent._es.sigma:.3f}")
+            extra_str = "  ".join(extra_parts)
+
+            pop_std_str = f"{cur_pop_std:.4f}" if not np.isnan(cur_pop_std) else "     n/a"
+            best_str = f"{best_ever:>9.1f}" if not np.isnan(best_ever) else "      n/a"
+            eta_str = f"eta {int(eta//60)}m{int(eta%60):02d}s"
+
             print(
-                f"[{run_name}] gen {episode:>4}/{episodes}"
-                f"  train={recent_reward:>8.1f}"
-                f"  eval={mean_eval_reward:>8.1f}"
-                f"  success={mean_eval_success:>5.1%}"
-                f"{best_fitness_str}",
+                f"  {episode:>6}/{episodes}"
+                f"  {recent_reward:>8.1f}"
+                f"  {mean_eval_reward:>8.1f}"
+                f"  {mean_eval_success:>6.1%}"
+                f"  {best_str}"
+                f"  {pop_std_str}"
+                f"  {extra_str or eta_str}",
                 flush=True,
             )
 
         if episode % save_every == 0:
             checkpoint = output_paths["models_dir"] / f"{run_name}_ep{episode}"
             agent.save(checkpoint)
+
+    total_time = _time.perf_counter() - _t0
+    best_ever = getattr(agent, "_best_fitness", float("nan"))
+    print(f"\n  Done in {int(total_time//60)}m{int(total_time%60):02d}s"
+          f"  |  best_fitness={best_ever:.1f}"
+          f"  |  final_eval={eval_mean_rewards[-1] if eval_mean_rewards else float('nan'):.1f}"
+          f"  |  success_rate={float(np.mean(successes)):.1%}", flush=True)
 
     final_model_path = output_paths["models_dir"] / f"{run_name}_final"
     agent.save(final_model_path)
