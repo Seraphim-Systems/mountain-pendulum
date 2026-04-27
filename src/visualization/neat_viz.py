@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 import networkx as nx
@@ -227,4 +228,107 @@ def draw_neat_growth_sequence(
     fig.suptitle("NEAT Topology Growth", fontsize=12, y=1.02)
     fig.tight_layout()
     fig.savefig(output_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _render_genome_onto_ax(ax, genome, config, gen: int) -> None:
+    """Draw one genome frame onto an existing axis (used by the animator)."""
+    ax.clear()
+    ax.set_axis_off()
+
+    input_keys = set(config.genome_config.input_keys)
+    output_keys = set(config.genome_config.output_keys)
+
+    G = nx.DiGraph()
+    for k in input_keys:
+        G.add_node(k)
+    for k in genome.nodes:
+        G.add_node(k)
+    for (i, o), conn in genome.connections.items():
+        G.add_edge(i, o, weight=conn.weight, enabled=conn.enabled)
+
+    pos = _node_positions(genome, config)
+    node_colors = [
+        _INPUT_COLOR if k in input_keys else
+        _OUTPUT_COLOR if k in output_keys else
+        _HIDDEN_COLOR
+        for k in G.nodes
+    ]
+
+    enabled_edges = [(i, o) for (i, o), d in G.edges.items() if d["enabled"]]
+    disabled_edges = [(i, o) for (i, o), d in G.edges.items() if not d["enabled"]]
+    weights = [G[i][o]["weight"] for i, o in enabled_edges]
+    max_w = max((abs(w) for w in weights), default=1.0)
+    norm = mcolors.Normalize(vmin=-max_w, vmax=max_w)
+    cmap = cm.coolwarm
+
+    nx.draw_networkx_nodes(G, pos, ax=ax, node_color=node_colors, node_size=500, alpha=0.92)
+
+    for (i, o), w in zip(enabled_edges, weights):
+        nx.draw_networkx_edges(
+            G, pos, edgelist=[(i, o)], ax=ax,
+            edge_color=[cmap(norm(w))],
+            width=0.8 + 2.5 * abs(w) / max(max_w, 1e-6),
+            arrows=True, arrowsize=12,
+            connectionstyle="arc3,rad=0.1",
+            min_source_margin=16, min_target_margin=16,
+        )
+    if disabled_edges:
+        nx.draw_networkx_edges(
+            G, pos, edgelist=disabled_edges, ax=ax,
+            edge_color=["#aaaaaa"], width=0.5,
+            style="dashed", alpha=_DISABLED_ALPHA, arrows=False,
+            connectionstyle="arc3,rad=0.1",
+            min_source_margin=16, min_target_margin=16,
+        )
+
+    n_hid = sum(1 for k in genome.nodes if k not in output_keys)
+    n_conn = sum(1 for c in genome.connections.values() if c.enabled)
+    fitness_str = f"  fitness={genome.fitness:.1f}" if genome.fitness is not None else ""
+    ax.set_title(
+        f"Generation {gen} — {n_hid} hidden nodes, {n_conn} connections{fitness_str}",
+        fontsize=10, pad=8,
+    )
+
+
+def draw_neat_animation(
+    snapshots: list[tuple[int, object]],
+    config,
+    output_path: str | Path,
+    fps: int = 4,
+    figsize: tuple[float, float] = (7, 5),
+) -> None:
+    """Save an animated GIF of NEAT topology evolving across generations.
+
+    snapshots: list of (generation, genome) — typically agent._genome_history
+    fps:       frames per second in the output GIF
+    """
+    if not snapshots:
+        return
+
+    from matplotlib.patches import Patch
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    legend_elements = [
+        Patch(facecolor=_INPUT_COLOR, label="Input"),
+        Patch(facecolor=_HIDDEN_COLOR, label="Hidden"),
+        Patch(facecolor=_OUTPUT_COLOR, label="Output"),
+    ]
+    fig.legend(handles=legend_elements, loc="lower right", fontsize=8, framealpha=0.85)
+
+    def update(frame_idx):
+        gen, genome = snapshots[frame_idx]
+        _render_genome_onto_ax(ax, genome, config, gen)
+
+    anim = animation.FuncAnimation(
+        fig, update,
+        frames=len(snapshots),
+        interval=1000 // fps,
+        repeat=True,
+    )
+
+    path = Path(output_path).with_suffix(".gif")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    anim.save(str(path), writer="pillow", fps=fps)
     plt.close(fig)

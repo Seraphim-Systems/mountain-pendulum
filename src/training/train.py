@@ -261,6 +261,13 @@ def train_single_seed(
 
     writer.flush()
     writer.close()
+
+    if hasattr(agent, "_genome_history") and agent._genome_history:
+        from src.visualization.neat_viz import draw_neat_animation
+        anim_path = output_paths["figures_dir"] / f"{run_name}_topology_evolution"
+        output_paths["figures_dir"].mkdir(parents=True, exist_ok=True)
+        draw_neat_animation(agent._genome_history, agent._config, anim_path, fps=6)
+
     env.close()
     return metrics
 

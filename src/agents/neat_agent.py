@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import configparser
+import copy
 import json
 import tempfile
 from math import inf
@@ -40,6 +41,8 @@ class NeatAgent:
         self._best_genome = None
         self._best_fitness: float = -inf
         self._net_cache: dict[int, neat.nn.FeedForwardNetwork] = {}
+        self._generation: int = 0
+        self._genome_history: list[tuple[int, object]] = []
 
     def _build_config(
         self,
@@ -111,6 +114,10 @@ class NeatAgent:
         if best.fitness is not None and best.fitness > self._best_fitness:
             self._best_fitness = float(best.fitness)
             self._best_genome = best
+
+        self._generation += 1
+        if self._best_genome is not None:
+            self._genome_history.append((self._generation, copy.deepcopy(self._best_genome)))
 
     def predict(self, obs: np.ndarray, deterministic: bool = True) -> int | np.ndarray:
         if self._best_genome is None:

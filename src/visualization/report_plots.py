@@ -21,7 +21,7 @@ from src.visualization.ga_plots import (
     plot_population_diversity,
 )
 from src.visualization.policy_maps import plot_policy_heatmap
-from src.visualization.neat_viz import draw_neat_genome, draw_neat_growth_sequence
+from src.visualization.neat_viz import draw_neat_genome, draw_neat_growth_sequence, draw_neat_animation
 
 
 _AGENTS = ["simple_ga", "cma_es", "neat"]
@@ -207,6 +207,11 @@ def generate_all(project_root: Path) -> None:
             draw_neat_growth_sequence(
                 snapshots, agent._config,
                 figs_dir / f"neat_{scenario}_growth_sequence.png",
+            )
+            draw_neat_animation(
+                snapshots, agent._config,
+                figs_dir / f"neat_{scenario}_topology_evolution.gif",
+                fps=4,
             )
 
     print(f"Figures written to {figs_dir}")
