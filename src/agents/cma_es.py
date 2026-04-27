@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 from pathlib import Path
 
 import cma
@@ -33,29 +34,50 @@ class CMAESAgent:
         )
         self._best_weights: np.ndarray | None = None
         self._best_fitness: float = -np.inf
+        self._envs: list | None = None
 
-    def _eval_individual(self, weights: np.ndarray, max_steps: int) -> float:
-        self._net.set_weights(weights)
-        obs, _ = self._env.reset()
-        total_reward = 0.0
+    def _get_envs(self, n: int) -> list:
+        if self._envs is None or len(self._envs) != n:
+            self._envs = [copy.deepcopy(self._env) for _ in range(n)]
+        return self._envs
+
+    def _eval_population(self, weights_matrix: np.ndarray, max_steps: int) -> list[float]:
+        N = len(weights_matrix)
+        envs = self._get_envs(N)
+        obs = np.array([env.reset()[0] for env in envs], dtype=np.float32)
+        total_rewards = np.zeros(N)
+        active = np.ones(N, dtype=bool)
+
         for _ in range(max_steps):
-            action = self.predict(obs)
-            obs, reward, terminated, truncated, _ = self._env.step(action)
-            total_reward += float(reward)
-            if terminated or truncated:
+            if not active.any():
                 break
-        return total_reward
+            idx = np.where(active)[0]
+            logits = self._net.batched_forward(obs[idx], weights_matrix[idx])
+            if self._discrete:
+                actions = np.argmax(logits, axis=1)
+            else:
+                actions = (np.tanh(logits) * self._action_scale).astype(np.float32)
+            for j, i in enumerate(idx):
+                act = int(actions[j]) if self._discrete else actions[j]
+                next_obs, reward, terminated, truncated, _ = envs[i].step(act)
+                total_rewards[i] += float(reward)
+                obs[i] = next_obs
+                if terminated or truncated:
+                    active[i] = False
+
+        return total_rewards.tolist()
 
     def learn(self, total_timesteps: int) -> None:
         solutions = self._es.ask()
-        fitnesses = [self._eval_individual(np.array(w), total_timesteps) for w in solutions]
+        weights_matrix = np.array(solutions)
+        fitnesses = self._eval_population(weights_matrix, total_timesteps)
         self._es.tell(solutions, [-f for f in fitnesses])
 
         best_idx = int(np.argmax(fitnesses))
         best_fitness = fitnesses[best_idx]
         if best_fitness > self._best_fitness:
             self._best_fitness = best_fitness
-            self._best_weights = np.array(solutions[best_idx]).copy()
+            self._best_weights = weights_matrix[best_idx].copy()
 
         if self._best_weights is not None:
             self._net.set_weights(self._best_weights)
