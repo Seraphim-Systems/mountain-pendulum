@@ -28,6 +28,15 @@ class SimpleGAAgent:
         self._augment = env.observation_space.shape[0] == 4
         self._action_scale = float(env.action_space.high[0]) if not self._discrete else 1.0
 
+        # Note: MPS (Apple Silicon) is explicitly disabled because the PyTorch-to-Metal dispatch 
+        # latency for sequential RL step loops is slower than native CPU execution.
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self._net.to(self.device)
+
+        # Dynamic Batching: only scale up on CUDA
+        if self.device.type == "cuda":
+            population_size = max(population_size, 500)
+            
         self._population_size = population_size
         self._elite_frac = elite_frac
         self._mutation_std = mutation_std
@@ -36,8 +45,8 @@ class SimpleGAAgent:
         self._rng = np.random.default_rng()
         self._envs: list | None = None
 
-        base_w = torch.from_numpy(self._net.get_weights().astype(np.float32))
-        self._pop = base_w + torch.randn(population_size, self._net.n_params) * 0.5
+        base_w = torch.from_numpy(self._net.get_weights().astype(np.float32)).to(self.device)
+        self._pop = base_w + torch.randn(population_size, self._net.n_params, device=self.device) * 0.5
         self._best_weights: np.ndarray | None = None
         self._best_fitness: float = -np.inf
 
@@ -75,7 +84,7 @@ class SimpleGAAgent:
     def learn(self, total_timesteps: int) -> None:
         fitnesses = self._eval_population(self._pop, total_timesteps)
         n_params = self._net.n_params
-        new_pop = torch.empty((self._population_size, n_params), dtype=torch.float32)
+        new_pop = torch.empty((self._population_size, n_params), dtype=torch.float32, device=self.device)
 
         # Elitism
         ranked_idx = np.argsort(fitnesses)[::-1].copy()
@@ -86,7 +95,7 @@ class SimpleGAAgent:
         # Tournament Selection
         tournament_size = 3
         def tournament_select():
-            contenders = torch.randint(0, self._population_size, (tournament_size,))
+            contenders = torch.randint(0, self._population_size, (tournament_size,), device=self.device)
             best_idx = contenders[int(np.argmax([fitnesses[idx] for idx in contenders]))]
             return self._pop[best_idx]
 
@@ -95,12 +104,12 @@ class SimpleGAAgent:
             parent_b = tournament_select()
 
             # Uniform Crossover
-            crossover_mask = torch.rand(n_params) < 0.5
+            crossover_mask = torch.rand(n_params, device=self.device) < 0.5
             child = torch.where(crossover_mask, parent_a, parent_b)
 
             # Probabilistic Mutation (10% chance per weight)
-            mutate_mask = torch.rand(n_params) < 0.1
-            mutation = torch.randn(n_params) * self._mutation_std
+            mutate_mask = torch.rand(n_params, device=self.device) < 0.1
+            mutation = torch.randn(n_params, device=self.device) * self._mutation_std
             child[mutate_mask] += mutation[mutate_mask]
 
             new_pop[i] = child
@@ -110,33 +119,33 @@ class SimpleGAAgent:
         best_fitness = max(fitnesses)
         if best_fitness > self._best_fitness:
             self._best_fitness = best_fitness
-            self._best_weights = elites[0].numpy().copy()
+            self._best_weights = elites[0].cpu().numpy().copy()
 
         self._net.set_weights(self._best_weights)
 
     def predict(self, obs: np.ndarray, deterministic: bool = True) -> int | np.ndarray:
         if self._best_weights is None:
-            self._net.set_weights(self._pop[0].numpy())
-        tensor = torch.from_numpy(np.asarray(obs, dtype=np.float32))
+            self._net.set_weights(self._pop[0].cpu().numpy())
+        tensor = torch.from_numpy(np.asarray(obs, dtype=np.float32)).to(self.device)
         with torch.no_grad():
             logits = self._net(tensor)
         if self._discrete:
-            return int(np.argmax(logits.numpy()))
-        return (np.tanh(logits.numpy()) * self._action_scale).astype(np.float32).reshape(-1)
+            return int(np.argmax(logits.cpu().numpy()))
+        return (np.tanh(logits.cpu().numpy()) * self._action_scale).astype(np.float32).reshape(-1)
 
     def save(self, model_path: str | Path) -> None:
         path = Path(model_path).with_suffix('.npz')
         path.parent.mkdir(parents=True, exist_ok=True)
         np.savez_compressed(
             path,
-            population=self._pop.numpy(),
+            population=self._pop.cpu().numpy(),
             best_weights=self._best_weights if self._best_weights is not None else np.array([]),
             best_fitness=np.array([self._best_fitness]),
         )
 
     def load(self, model_path: str | Path, env=None) -> None:
         data = np.load(Path(model_path).with_suffix('.npz'), allow_pickle=False)
-        self._pop = torch.from_numpy(data['population'].astype(np.float32))
+        self._pop = torch.from_numpy(data['population'].astype(np.float32)).to(self.device)
         w = data['best_weights']
         self._best_weights = w if w.size > 0 else None
         self._best_fitness = float(data['best_fitness'][0])
@@ -157,6 +166,7 @@ class SimpleGAAgent:
                     obs = np.array([pos, vel], dtype=np.float32)
                     if self._augment:
                         obs = augment_state(obs)
-                    logits = self._net(torch.from_numpy(obs))
-                    table[i, j] = int(np.argmax(logits.numpy()))
+                    tensor_obs = torch.from_numpy(obs).to(self.device)
+                    logits = self._net(tensor_obs)
+                    table[i, j] = int(np.argmax(logits.cpu().numpy()))
         return table

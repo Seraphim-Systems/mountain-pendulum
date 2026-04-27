@@ -8,6 +8,9 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+from rich.live import Live
+from rich.table import Table
+from rich import box
 
 from src.agents.cma_es import CMAESAgent
 from src.agents.dqn import DQNBaseline
@@ -113,7 +116,7 @@ def build_agent(config: dict[str, Any], env: Any) -> Any:
 
 
 def rollout_episode(
-    env: Any, agent: Any, deterministic: bool = True
+    env: Any, agent: Any, deterministic: bool = True, episode_idx: int | None = None, custom_renderer: Any = None
 ) -> tuple[float, int, bool]:
     """Run one full episode for evaluation."""
     obs, _ = env.reset()
@@ -134,11 +137,14 @@ def rollout_episode(
         done = bool(terminated or truncated)
         success = bool(terminated and not truncated)
 
+        if custom_renderer:
+            custom_renderer.render(obs, agent.__class__.__name__, episode_idx, steps, total_reward)
+
     return total_reward, steps, success
 
 
 def train_single_seed(
-    config: dict[str, Any], seed: int, project_root: Path
+    config: dict[str, Any], seed: int, project_root: Path, render: bool = False
 ) -> dict[str, Any]:
     """Train one seed and persist metrics/checkpoints."""
     output_paths = ensure_paths(config, project_root)
@@ -146,6 +152,17 @@ def train_single_seed(
 
     env = build_env(config["env"])
     seed_env(env, seed)
+    
+    # Custom Renderer takes over visually
+    eval_env = build_env(config["env"], render_mode=None) if render else None
+    if eval_env:
+        seed_env(eval_env, seed)
+        
+    custom_renderer = None
+    if render:
+        from src.visualization.custom_renderer import NeonMountainCarRenderer
+        custom_renderer = NeonMountainCarRenderer()
+        
     agent = build_agent(config, env)
 
     run_name = f"{config['experiment_name']}_seed{seed}"
@@ -157,13 +174,46 @@ def train_single_seed(
     eval_episodes = int(config["train"]["eval_episodes"])
     save_every = int(config["train"]["save_every"])
 
-    print(f"\n{'='*64}", flush=True)
-    print(f"  {run_name}", flush=True)
-    print(f"  agent={config['agent']}  env={config['env']['id']}", flush=True)
-    print(f"  generations={episodes}  pop_steps={max_steps}  eval_every={eval_every}", flush=True)
-    print(f"{'='*64}", flush=True)
-    print(f"  {'Gen':>6}  {'Train':>8}  {'Eval':>8}  {'Success':>7}  {'BestEver':>9}  {'PopStd':>8}  {'Extra'}", flush=True)
-    print(f"  {'-'*6}  {'-'*8}  {'-'*8}  {'-'*7}  {'-'*9}  {'-'*8}  {'-'*14}", flush=True)
+    pop_str = ""
+    device_str = ""
+    if hasattr(agent, "device"):
+        device_str = f" | Device: {str(agent.device).upper()}"
+        
+    if hasattr(agent, "_population_size"):
+        pop_size = agent._population_size
+        pop_str = f" | Pop: {pop_size}"
+        if hasattr(agent, "_elite_frac"):
+            n_elites = max(1, int(pop_size * agent._elite_frac))
+            pop_str += f" | Elites: {n_elites}"
+    elif hasattr(agent, "_es"):
+        pop_str = f" | Pop: {agent._es.popsize}"
+
+    table = Table(
+        title=f"[bold cyan]{run_name}[/bold cyan]\nAgent: {config['agent']} | Env: {config['env']['id']}{device_str}{pop_str}", 
+        box=box.SIMPLE,
+        header_style="bold magenta",
+    )
+    table.add_column("Gen", justify="right")
+    table.add_column("Train Reward", justify="right", style="cyan")
+    table.add_column("Eval Reward", justify="right", style="bold green")
+    table.add_column("Success", justify="right")
+    table.add_column("Best Ever", justify="right", style="yellow")
+
+    is_q = isinstance(agent, QLearningAgent)
+    is_ga = config["agent"] == "simple_ga"
+    is_cma = config["agent"] == "cma_es"
+    is_neat = config["agent"] == "neat"
+
+    if is_q:
+        table.add_column("Epsilon", justify="right")
+    elif is_ga:
+        table.add_column("Pop Std", justify="right")
+    elif is_cma:
+        table.add_column("Sigma (σ)", justify="right")
+    elif is_neat:
+        table.add_column("Species", justify="right")
+    
+    table.add_column("ETA", justify="right", style="dim")
 
     import time as _time
     _t0 = _time.perf_counter()
@@ -174,99 +224,102 @@ def train_single_seed(
     eval_mean_rewards: list[float] = []
     pop_stds: list[float] = []
 
-    for episode in range(1, episodes + 1):
-        if isinstance(agent, QLearningAgent):
-            obs, _ = env.reset()
-            state = tuple(obs)
-            done = False
-            ep_reward = 0.0
-            ep_len = 0
-            ep_success = False
+    with Live(table, refresh_per_second=4) as live:
+        for episode in range(1, episodes + 1):
+            if isinstance(agent, QLearningAgent):
+                obs, _ = env.reset()
+                state = tuple(obs)
+                done = False
+                ep_reward = 0.0
+                ep_len = 0
+                ep_success = False
 
-            while not done and ep_len < max_steps:
-                action = agent.select_action(state)
-                next_obs, reward, terminated, truncated, _ = env.step(action)
-                next_state = tuple(next_obs)
-                done = bool(terminated or truncated)
-                agent.update(state, action, float(reward), next_state, done)
-                state = next_state
-                ep_reward += float(reward)
-                ep_len += 1
-                ep_success = bool(terminated and not truncated)
+                while not done and ep_len < max_steps:
+                    action = agent.select_action(state)
+                    next_obs, reward, terminated, truncated, _ = env.step(action)
+                    next_state = tuple(next_obs)
+                    done = bool(terminated or truncated)
+                    agent.update(state, action, float(reward), next_state, done)
+                    state = next_state
+                    ep_reward += float(reward)
+                    ep_len += 1
+                    ep_success = bool(terminated and not truncated)
 
-            agent.on_episode_end()
-        else:
-            agent.learn(total_timesteps=max_steps)
-            ep_reward, ep_len, ep_success = rollout_episode(
-                env, agent, deterministic=True
-            )
+                agent.on_episode_end()
+            else:
+                agent.learn(total_timesteps=max_steps)
+                ep_reward, ep_len, ep_success = rollout_episode(
+                    env, agent, deterministic=True, episode_idx=episode, custom_renderer=custom_renderer
+                )
 
-        rewards.append(ep_reward)
-        lengths.append(ep_len)
-        successes.append(float(ep_success))
+            rewards.append(ep_reward)
+            lengths.append(ep_len)
+            successes.append(float(ep_success))
 
-        writer.add_scalar("train/reward", ep_reward, episode)
-        writer.add_scalar("train/episode_length", ep_len, episode)
-        writer.add_scalar("train/success", float(ep_success), episode)
+            writer.add_scalar("train/reward", ep_reward, episode)
+            writer.add_scalar("train/episode_length", ep_len, episode)
+            writer.add_scalar("train/success", float(ep_success), episode)
 
-        if isinstance(agent, QLearningAgent):
-            writer.add_scalar("train/epsilon", agent.epsilon, episode)
-        elif hasattr(agent, "exploration_rate"):
-            writer.add_scalar("train/exploration_rate", agent.exploration_rate, episode)
+            if isinstance(agent, QLearningAgent):
+                writer.add_scalar("train/epsilon", agent.epsilon, episode)
+            elif hasattr(agent, "exploration_rate"):
+                writer.add_scalar("train/exploration_rate", agent.exploration_rate, episode)
 
-        if hasattr(agent, "_pop"):
-            pop_arr = agent._pop.numpy() if hasattr(agent._pop, 'numpy') else agent._pop
-            pop_std = float(np.mean(np.std(pop_arr, axis=0)))
-            writer.add_scalar("train/population_std", pop_std, episode)
-            pop_stds.append(pop_std)
-        else:
-            pop_stds.append(float("nan"))
+            if hasattr(agent, "_pop"):
+                pop_arr = agent._pop.cpu().numpy() if hasattr(agent._pop, 'numpy') else agent._pop
+                pop_std = float(np.mean(np.std(pop_arr, axis=0)))
+                writer.add_scalar("train/population_std", pop_std, episode)
+                pop_stds.append(pop_std)
+            else:
+                pop_stds.append(float("nan"))
 
-        if episode % eval_every == 0:
-            eval_rewards = []
-            eval_success = []
-            for _ in range(eval_episodes):
-                r, _, s = rollout_episode(env, agent, deterministic=True)
-                eval_rewards.append(r)
-                eval_success.append(float(s))
-            mean_eval_reward = float(np.mean(eval_rewards))
-            mean_eval_success = float(np.mean(eval_success))
-            eval_mean_rewards.append(mean_eval_reward)
-            writer.add_scalar("eval/mean_reward", mean_eval_reward, episode)
-            writer.add_scalar("eval/success_rate", mean_eval_success, episode)
+            if episode % eval_every == 0:
+                eval_rewards = []
+                eval_success = []
+                current_eval_env = eval_env if eval_env else env
+                for _ in range(eval_episodes):
+                    r, _, s = rollout_episode(current_eval_env, agent, deterministic=True)
+                    eval_rewards.append(r)
+                    eval_success.append(float(s))
+                mean_eval_reward = float(np.mean(eval_rewards))
+                mean_eval_success = float(np.mean(eval_success))
+                eval_mean_rewards.append(mean_eval_reward)
+                writer.add_scalar("eval/mean_reward", mean_eval_reward, episode)
+                writer.add_scalar("eval/success_rate", mean_eval_success, episode)
 
-            recent_reward = float(np.mean(rewards[-eval_every:]))
-            best_ever = getattr(agent, "_best_fitness", float("nan"))
-            cur_pop_std = pop_stds[-1] if pop_stds and not np.isnan(pop_stds[-1]) else float("nan")
-            elapsed = _time.perf_counter() - _t0
-            eta = (elapsed / episode) * (episodes - episode)
+                recent_reward = float(np.mean(rewards[-eval_every:]))
+                best_ever = getattr(agent, "_best_fitness", float("nan"))
+                cur_pop_std = pop_stds[-1] if pop_stds and not np.isnan(pop_stds[-1]) else float("nan")
+                elapsed = _time.perf_counter() - _t0
+                eta = (elapsed / episode) * (episodes - episode)
 
-            extra_parts = []
-            if hasattr(agent, "_population") and hasattr(agent._population, "species"):
-                n_species = len(agent._population.species.species)
-                extra_parts.append(f"species={n_species}")
-            if hasattr(agent, "_es"):
-                extra_parts.append(f"σ={agent._es.sigma:.3f}")
-            extra_str = "  ".join(extra_parts)
+                success_color = "bold green" if mean_eval_success > 0 else "red"
+                success_str = f"[{success_color}]{mean_eval_success:.1%}[/{success_color}]"
+        
+                row = [
+                    f"{episode}/{episodes}",
+                    f"{recent_reward:.1f}",
+                    f"{mean_eval_reward:.1f}",
+                    success_str,
+                    f"{best_ever:.1f}" if not np.isnan(best_ever) else "n/a",
+                ]
+            
+                if is_q:
+                    row.append(f"{agent.epsilon:.3f}")
+                elif is_ga:
+                    row.append(f"{cur_pop_std:.4f}" if not np.isnan(cur_pop_std) else "n/a")
+                elif is_cma:
+                    row.append(f"{agent._es.sigma:.3f}" if hasattr(agent, "_es") else "n/a")
+                elif is_neat:
+                    n_species = len(agent._population.species.species) if hasattr(agent, "_population") and hasattr(agent._population, "species") else 0
+                    row.append(str(n_species))
+                
+                row.append(f"{int(eta//60)}m{int(eta%60):02d}s")
+                table.add_row(*row)
 
-            pop_std_str = f"{cur_pop_std:.4f}" if not np.isnan(cur_pop_std) else "     n/a"
-            best_str = f"{best_ever:>9.1f}" if not np.isnan(best_ever) else "      n/a"
-            eta_str = f"eta {int(eta//60)}m{int(eta%60):02d}s"
-
-            print(
-                f"  {episode:>6}/{episodes}"
-                f"  {recent_reward:>8.1f}"
-                f"  {mean_eval_reward:>8.1f}"
-                f"  {mean_eval_success:>6.1%}"
-                f"  {best_str}"
-                f"  {pop_std_str}"
-                f"  {extra_str or eta_str}",
-                flush=True,
-            )
-
-        if episode % save_every == 0:
-            checkpoint = output_paths["models_dir"] / f"{run_name}_ep{episode}"
-            agent.save(checkpoint)
+            if episode % save_every == 0:
+                checkpoint = output_paths["models_dir"] / f"{run_name}_ep{episode}"
+                agent.save(checkpoint)
 
     total_time = _time.perf_counter() - _t0
     best_ever = getattr(agent, "_best_fitness", float("nan"))
@@ -316,17 +369,21 @@ def train_single_seed(
         output_paths["figures_dir"].mkdir(parents=True, exist_ok=True)
         draw_neat_animation(agent._genome_history, agent._config, anim_path, fps=6)
 
+    if eval_env:
+        eval_env.close()
+    if custom_renderer:
+        custom_renderer.close()
     env.close()
     return metrics
 
 
-def train_experiment(config_path: str, project_root: str) -> None:
+def train_experiment(config_path: str, project_root: str, render: bool = False) -> None:
     """Train one experiment config across all configured seeds."""
     config = load_config(config_path)
     root = Path(project_root)
     seed_results = []
     for seed in config["train"]["seeds"]:
-        result = train_single_seed(config, int(seed), root)
+        result = train_single_seed(config, int(seed), root, render=render)
         seed_results.append(result)
 
     df = pd.DataFrame(seed_results)
@@ -364,9 +421,14 @@ def parse_args() -> argparse.Namespace:
         default=".",
         help="Path to project root containing outputs/ and configs/.",
     )
+    parser.add_argument(
+        "--render",
+        action="store_true",
+        help="Render the Mountain Car live during evaluations.",
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
-    train_experiment(config_path=args.config, project_root=args.project_root)
+    train_experiment(config_path=args.config, project_root=args.project_root, render=args.render)

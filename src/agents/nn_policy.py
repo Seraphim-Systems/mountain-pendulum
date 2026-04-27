@@ -22,7 +22,7 @@ class PolicyNetwork(nn.Module):
         return sum(p.numel() for p in self.parameters())
 
     def get_weights(self) -> np.ndarray:
-        return np.concatenate([p.detach().numpy().ravel() for p in self.parameters()]).astype(np.float64)
+        return np.concatenate([p.detach().cpu().numpy().ravel() for p in self.parameters()]).astype(np.float64)
 
     def set_weights(self, w: np.ndarray) -> None:
         with torch.no_grad():
@@ -37,9 +37,10 @@ class PolicyNetwork(nn.Module):
 
     def batched_forward(self, obs_batch: torch.Tensor | np.ndarray, all_weights: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
         """Forward pass for N individuals each with different weights."""
+        device = next(self.parameters()).device
         is_numpy = isinstance(obs_batch, np.ndarray)
-        x = torch.from_numpy(obs_batch.astype(np.float32)) if is_numpy else obs_batch.float()
-        w = torch.from_numpy(all_weights.astype(np.float32)) if isinstance(all_weights, np.ndarray) else all_weights.float()
+        x = torch.from_numpy(obs_batch.astype(np.float32)).to(device) if is_numpy else obs_batch.float().to(device)
+        w = torch.from_numpy(all_weights.astype(np.float32)).to(device) if isinstance(all_weights, np.ndarray) else all_weights.float().to(device)
         
         N = len(x)
         offset = 0
@@ -56,7 +57,7 @@ class PolicyNetwork(nn.Module):
                 elif isinstance(layer, nn.ReLU):
                     x = torch.relu(x)
                     
-        return x.numpy() if is_numpy else x
+        return x.cpu().numpy() if is_numpy else x
 
 
 def build_policy(env, hidden_sizes: list[int] = [64, 64]) -> PolicyNetwork:

@@ -68,24 +68,21 @@ class AugmentStateWrapper(gym.ObservationWrapper):
 class EnergyShapingRewardWrapper(gym.Wrapper):
     """Add potential-energy-difference reward shaping term explicitly."""
 
-    def __init__(self, env: gym.Env, energy_weight: float = 0.2) -> None:
+    def __init__(self, env: gym.Env, energy_weight: float = 100.0) -> None:
         super().__init__(env)
         self.energy_weight = energy_weight
-        self._prev_position = 0.0
 
     def reset(self, **kwargs: Any) -> tuple[np.ndarray, dict[str, Any]]:
-        """Reset environment and initialize previous position."""
+        """Reset environment."""
         obs, info = self.env.reset(**kwargs)
-        self._prev_position = float(obs[0])
         return obs, info
 
     def step(self, action: Any) -> tuple[np.ndarray, float, bool, bool, dict[str, Any]]:
-        """Apply additive shaping reward based on potential change."""
+        """Apply additive shaping reward based on absolute kinetic momentum."""
         obs, reward, terminated, truncated, info = self.env.step(action)
-        position = float(obs[0])
-        delta_potential = np.sin(3.0 * position) - np.sin(3.0 * self._prev_position)
-        shaped_reward = float(reward + self.energy_weight * delta_potential)
-        self._prev_position = position
+        velocity = float(obs[1])
+        # Reward raw speed (momentum) to encourage swinging
+        shaped_reward = float(reward + self.energy_weight * abs(velocity))
         return obs, shaped_reward, terminated, truncated, info
 
 
