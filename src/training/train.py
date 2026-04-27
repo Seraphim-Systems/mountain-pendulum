@@ -9,9 +9,12 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from src.agents.cma_es import CMAESAgent
 from src.agents.dqn import DQNBaseline
+from src.agents.neat_agent import NeatAgent
 from src.agents.q_learning import QLearningAgent
 from src.agents.sac import SACBaseline
+from src.agents.simple_ga import SimpleGAAgent
 from src.envs.mountain_car_continuous import make_continuous_env
 from src.envs.mountain_car_discrete import make_discrete_env
 from src.utils.config import ensure_paths, load_config
@@ -76,6 +79,34 @@ def build_agent(config: dict[str, Any], env: Any) -> Any:
             replay_buffer_size=int(sac_cfg["replay_buffer_size"]),
             learning_starts=int(sac_cfg["learning_starts"]),
             hidden_sizes=list(sac_cfg["hidden_sizes"]),
+        )
+
+    if agent_name == "simple_ga":
+        ga_cfg = config["simple_ga"]
+        return SimpleGAAgent(
+            env=env,
+            population_size=int(ga_cfg["population_size"]),
+            elite_frac=float(ga_cfg["elite_frac"]),
+            mutation_std=float(ga_cfg["mutation_std"]),
+            crossover_alpha=float(ga_cfg.get("crossover_alpha", 0.5)),
+            hidden_sizes=list(ga_cfg.get("hidden_sizes", [64, 64])),
+        )
+
+    if agent_name == "cma_es":
+        cma_cfg = config["cma_es"]
+        return CMAESAgent(
+            env=env,
+            population_size=int(cma_cfg["population_size"]),
+            sigma0=float(cma_cfg["sigma0"]),
+            hidden_sizes=list(cma_cfg.get("hidden_sizes", [64, 64])),
+        )
+
+    if agent_name == "neat":
+        neat_cfg = config["neat"]
+        return NeatAgent(
+            env=env,
+            pop_size=int(neat_cfg["pop_size"]),
+            fitness_threshold=float(neat_cfg.get("fitness_threshold", 90.0)),
         )
 
     raise ValueError(f"Unsupported agent type: {agent_name}")
