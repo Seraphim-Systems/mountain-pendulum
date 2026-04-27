@@ -32,8 +32,9 @@ class SimpleGAAgent:
         self._mutation_std = mutation_std
         self._crossover_alpha = crossover_alpha
         self._hidden_sizes = hidden_sizes
+        self._rng = np.random.default_rng()
 
-        self._pop = np.random.randn(population_size, self._net.n_params) * 0.1
+        self._pop = self._rng.standard_normal((population_size, self._net.n_params)) * 0.1
         self._best_weights: np.ndarray | None = None
         self._best_fitness: float = -np.inf
 
@@ -58,12 +59,11 @@ class SimpleGAAgent:
         new_pop = list(elites)
 
         n_params = self._net.n_params
-        rng = np.random.default_rng()
         for _ in range(self._population_size - n_elite):
-            idx_a, idx_b = rng.choice(n_elite, size=2, replace=True)
+            idx_a, idx_b = self._rng.choice(n_elite, size=2, replace=n_elite < 2)
             parent_a, parent_b = elites[idx_a], elites[idx_b]
             child = self._crossover_alpha * parent_a + (1 - self._crossover_alpha) * parent_b
-            child = child + np.random.randn(n_params) * self._mutation_std
+            child = child + self._rng.standard_normal(n_params) * self._mutation_std
             new_pop.append(child)
 
         self._pop = np.array(new_pop)

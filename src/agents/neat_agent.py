@@ -39,6 +39,7 @@ class NeatAgent:
         self._population = neat.Population(self._config)
         self._best_genome = None
         self._best_fitness: float = -inf
+        self._net_cache: dict[int, neat.nn.FeedForwardNetwork] = {}
 
     def _build_config(
         self,
@@ -72,8 +73,10 @@ class NeatAgent:
         return config
 
     def _activate(self, genome, obs: np.ndarray):
-        net = neat.nn.FeedForwardNetwork.create(genome, self._config)
-        return net.activate(obs.tolist())
+        gid = id(genome)
+        if gid not in self._net_cache:
+            self._net_cache[gid] = neat.nn.FeedForwardNetwork.create(genome, self._config)
+        return self._net_cache[gid].activate(obs.tolist())
 
     def _eval_genome(self, genome, max_steps: int) -> float:
         obs, _ = self._env.reset()
@@ -93,6 +96,8 @@ class NeatAgent:
         return total_reward
 
     def learn(self, total_timesteps: int) -> None:
+        self._net_cache.clear()
+
         def eval_genomes(genomes, config):
             for genome_id, genome in genomes:
                 genome.fitness = self._eval_genome(genome, total_timesteps)

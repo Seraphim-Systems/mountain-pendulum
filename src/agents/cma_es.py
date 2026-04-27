@@ -77,6 +77,13 @@ class CMAESAgent:
             path,
             best_weights=self._best_weights if self._best_weights is not None else np.array([]),
             best_fitness=np.array([self._best_fitness]),
+            cma_mean=self._es.mean.copy(),
+            cma_sigma=np.array([self._es.sigma]),
+            cma_C=self._es.sm.C.copy(),
+            cma_B=self._es.sm.B.copy(),
+            cma_D=np.atleast_1d(self._es.sm.D).copy(),
+            cma_count_tell=np.array([self._es.sm.count_tell], dtype=np.int64),
+            cma_popsize=np.array([self._es.popsize], dtype=np.int64),
         )
 
     def load(self, model_path: str | Path, env=None) -> None:
@@ -86,6 +93,14 @@ class CMAESAgent:
         self._best_fitness = float(data['best_fitness'][0])
         if self._best_weights is not None:
             self._net.set_weights(self._best_weights)
+        mean = data['cma_mean']
+        sigma = float(data['cma_sigma'][0])
+        popsize = int(data['cma_popsize'][0])
+        self._es = cma.CMAEvolutionStrategy(mean, sigma, {'popsize': popsize, 'verbose': -9})
+        self._es.sm.C = data['cma_C'].copy()
+        self._es.sm.B = data['cma_B'].copy()
+        self._es.sm.D = data['cma_D'].copy()
+        self._es.sm.count_tell = int(data['cma_count_tell'][0])
 
     @property
     def policy_table(self) -> np.ndarray | None:
