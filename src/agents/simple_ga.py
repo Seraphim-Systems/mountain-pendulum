@@ -71,7 +71,7 @@ class SimpleGAAgent:
         best_fitness = max(fitnesses)
         if best_fitness > self._best_fitness:
             self._best_fitness = best_fitness
-            self._best_weights = self._pop[ranked[0]].copy()
+            self._best_weights = elites[0].copy()
 
         self._net.set_weights(self._best_weights)
 
