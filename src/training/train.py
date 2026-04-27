@@ -150,6 +150,7 @@ def train_single_seed(
 
     run_name = f"{config['experiment_name']}_seed{seed}"
     writer = make_writer(output_paths["logs_dir"], run_name)
+    print(f"\n{'='*60}\n{run_name}  ({config['agent']} | {config['env']['id']})\n{'='*60}", flush=True)
 
     episodes = int(config["train"]["episodes"])
     max_steps = int(config["train"]["max_steps_per_episode"])
@@ -222,6 +223,19 @@ def train_single_seed(
             eval_mean_rewards.append(mean_eval_reward)
             writer.add_scalar("eval/mean_reward", mean_eval_reward, episode)
             writer.add_scalar("eval/success_rate", mean_eval_success, episode)
+
+            recent_reward = float(np.mean(rewards[-eval_every:]))
+            best_fitness_str = ""
+            if hasattr(agent, "_best_fitness"):
+                best_fitness_str = f"  best={agent._best_fitness:.1f}"
+            print(
+                f"[{run_name}] gen {episode:>4}/{episodes}"
+                f"  train={recent_reward:>8.1f}"
+                f"  eval={mean_eval_reward:>8.1f}"
+                f"  success={mean_eval_success:>5.1%}"
+                f"{best_fitness_str}",
+                flush=True,
+            )
 
         if episode % save_every == 0:
             checkpoint = output_paths["models_dir"] / f"{run_name}_ep{episode}"
