@@ -161,6 +161,7 @@ def train_single_seed(
     lengths: list[int] = []
     successes: list[float] = []
     eval_mean_rewards: list[float] = []
+    pop_stds: list[float] = []
 
     for episode in range(1, episodes + 1):
         if isinstance(agent, QLearningAgent):
@@ -201,6 +202,13 @@ def train_single_seed(
             writer.add_scalar("train/epsilon", agent.epsilon, episode)
         elif hasattr(agent, "exploration_rate"):
             writer.add_scalar("train/exploration_rate", agent.exploration_rate, episode)
+
+        if hasattr(agent, "_pop"):
+            pop_std = float(np.mean(np.std(agent._pop, axis=0)))
+            writer.add_scalar("train/population_std", pop_std, episode)
+            pop_stds.append(pop_std)
+        else:
+            pop_stds.append(float("nan"))
 
         if episode % eval_every == 0:
             eval_rewards = []
@@ -243,6 +251,7 @@ def train_single_seed(
             "reward": rewards,
             "length": lengths,
             "success": successes,
+            "population_std": pop_stds,
             "seed": seed,
         }
     )
