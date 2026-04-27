@@ -35,16 +35,13 @@ class PolicyNetwork(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.net(x)
 
-    def batched_forward(self, obs_batch: np.ndarray, all_weights: np.ndarray) -> np.ndarray:
-        """Forward pass for N individuals each with different weights.
-
-        obs_batch:   (N, obs_dim)  float32 numpy
-        all_weights: (N, n_params) float64 numpy
-        returns:     (N, n_out)    float32 numpy
-        """
-        N = len(obs_batch)
-        x = torch.from_numpy(obs_batch.astype(np.float32))       # (N, obs_dim)
-        w = torch.from_numpy(all_weights.astype(np.float32))      # (N, n_params)
+    def batched_forward(self, obs_batch: torch.Tensor | np.ndarray, all_weights: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+        """Forward pass for N individuals each with different weights."""
+        is_numpy = isinstance(obs_batch, np.ndarray)
+        x = torch.from_numpy(obs_batch.astype(np.float32)) if is_numpy else obs_batch.float()
+        w = torch.from_numpy(all_weights.astype(np.float32)) if isinstance(all_weights, np.ndarray) else all_weights.float()
+        
+        N = len(x)
         offset = 0
         with torch.no_grad():
             for layer in self.net:
@@ -58,7 +55,8 @@ class PolicyNetwork(nn.Module):
                     x = torch.bmm(W, x.unsqueeze(-1)).squeeze(-1) + b
                 elif isinstance(layer, nn.ReLU):
                     x = torch.relu(x)
-        return x.numpy()
+                    
+        return x.numpy() if is_numpy else x
 
 
 def build_policy(env, hidden_sizes: list[int] = [64, 64]) -> PolicyNetwork:

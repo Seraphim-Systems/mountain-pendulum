@@ -36,7 +36,8 @@ class SimpleGAAgent:
         self._rng = np.random.default_rng()
         self._envs: list | None = None
 
-        self._pop = self._rng.standard_normal((population_size, self._net.n_params)) * 0.1
+        base_w = torch.from_numpy(self._net.get_weights().astype(np.float32))
+        self._pop = base_w + torch.randn(population_size, self._net.n_params) * 0.5
         self._best_weights: np.ndarray | None = None
         self._best_fitness: float = -np.inf
 
@@ -45,7 +46,7 @@ class SimpleGAAgent:
             self._envs = [copy.deepcopy(self._env) for _ in range(n)]
         return self._envs
 
-    def _eval_population(self, weights_matrix: np.ndarray, max_steps: int) -> list[float]:
+    def _eval_population(self, weights_matrix: torch.Tensor | np.ndarray, max_steps: int) -> list[float]:
         N = len(weights_matrix)
         envs = self._get_envs(N)
         obs = np.array([env.reset()[0] for env in envs], dtype=np.float32)
@@ -73,32 +74,49 @@ class SimpleGAAgent:
 
     def learn(self, total_timesteps: int) -> None:
         fitnesses = self._eval_population(self._pop, total_timesteps)
-        ranked = np.argsort(fitnesses)[::-1]
-        n_elite = max(1, int(len(self._pop) * self._elite_frac))
-
-        elites = self._pop[ranked[:n_elite]]
-        new_pop = list(elites)
-
         n_params = self._net.n_params
-        for _ in range(self._population_size - n_elite):
-            idx_a, idx_b = self._rng.choice(n_elite, size=2, replace=n_elite < 2)
-            parent_a, parent_b = elites[idx_a], elites[idx_b]
-            child = self._crossover_alpha * parent_a + (1 - self._crossover_alpha) * parent_b
-            child = child + self._rng.standard_normal(n_params) * self._mutation_std
-            new_pop.append(child)
+        new_pop = torch.empty((self._population_size, n_params), dtype=torch.float32)
 
-        self._pop = np.array(new_pop)
+        # Elitism
+        ranked_idx = np.argsort(fitnesses)[::-1].copy()
+        n_elite = max(1, int(self._population_size * self._elite_frac))
+        elites = self._pop[ranked_idx[:n_elite]]
+        new_pop[:n_elite] = elites
+
+        # Tournament Selection
+        tournament_size = 3
+        def tournament_select():
+            contenders = torch.randint(0, self._population_size, (tournament_size,))
+            best_idx = contenders[int(np.argmax([fitnesses[idx] for idx in contenders]))]
+            return self._pop[best_idx]
+
+        for i in range(n_elite, self._population_size):
+            parent_a = tournament_select()
+            parent_b = tournament_select()
+
+            # Uniform Crossover
+            crossover_mask = torch.rand(n_params) < 0.5
+            child = torch.where(crossover_mask, parent_a, parent_b)
+
+            # Probabilistic Mutation (10% chance per weight)
+            mutate_mask = torch.rand(n_params) < 0.1
+            mutation = torch.randn(n_params) * self._mutation_std
+            child[mutate_mask] += mutation[mutate_mask]
+
+            new_pop[i] = child
+
+        self._pop = new_pop
 
         best_fitness = max(fitnesses)
         if best_fitness > self._best_fitness:
             self._best_fitness = best_fitness
-            self._best_weights = elites[0].copy()
+            self._best_weights = elites[0].numpy().copy()
 
         self._net.set_weights(self._best_weights)
 
     def predict(self, obs: np.ndarray, deterministic: bool = True) -> int | np.ndarray:
         if self._best_weights is None:
-            self._net.set_weights(self._pop[0])
+            self._net.set_weights(self._pop[0].numpy())
         tensor = torch.from_numpy(np.asarray(obs, dtype=np.float32))
         with torch.no_grad():
             logits = self._net(tensor)
@@ -111,14 +129,14 @@ class SimpleGAAgent:
         path.parent.mkdir(parents=True, exist_ok=True)
         np.savez_compressed(
             path,
-            population=self._pop,
+            population=self._pop.numpy(),
             best_weights=self._best_weights if self._best_weights is not None else np.array([]),
             best_fitness=np.array([self._best_fitness]),
         )
 
     def load(self, model_path: str | Path, env=None) -> None:
         data = np.load(Path(model_path).with_suffix('.npz'), allow_pickle=False)
-        self._pop = data['population']
+        self._pop = torch.from_numpy(data['population'].astype(np.float32))
         w = data['best_weights']
         self._best_weights = w if w.size > 0 else None
         self._best_fitness = float(data['best_fitness'][0])

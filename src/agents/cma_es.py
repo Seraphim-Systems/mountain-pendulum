@@ -28,7 +28,7 @@ class CMAESAgent:
         self._action_scale = float(env.action_space.high[0]) if not self._discrete else 1.0
 
         self._es = cma.CMAEvolutionStrategy(
-            np.zeros(self._net.n_params),
+            self._net.get_weights(),
             sigma0,
             {'popsize': population_size, 'verbose': -9},
         )

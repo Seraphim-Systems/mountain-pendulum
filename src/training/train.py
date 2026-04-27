@@ -215,7 +215,8 @@ def train_single_seed(
             writer.add_scalar("train/exploration_rate", agent.exploration_rate, episode)
 
         if hasattr(agent, "_pop"):
-            pop_std = float(np.mean(np.std(agent._pop, axis=0)))
+            pop_arr = agent._pop.numpy() if hasattr(agent._pop, 'numpy') else agent._pop
+            pop_std = float(np.mean(np.std(pop_arr, axis=0)))
             writer.add_scalar("train/population_std", pop_std, episode)
             pop_stds.append(pop_std)
         else:

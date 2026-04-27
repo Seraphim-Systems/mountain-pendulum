@@ -14,7 +14,7 @@ train:
 simple_ga:
   population_size: 50
   elite_frac: 0.2
-  mutation_std: 0.05
+  mutation_std: 0.1
   crossover_alpha: 0.5
   hidden_sizes: [64, 64]
 paths:
