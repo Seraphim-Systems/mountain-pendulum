@@ -32,9 +32,17 @@ The code enforces and checks the following assumptions:
   .gitignore                                 # ignores caches, venv, and generated outputs
   configs/
     q_learning_discrete.yaml                 # tabular baseline config
+    q_learning_separate.yaml                 # standalone Q-learning config
+    sarsa_discrete.yaml                      # standalone SARSA config
     dqn_discrete.yaml                        # DQN baseline config
     sac_continuous.yaml                      # SAC baseline config
   src/
+    q_learning/
+      agent.py                               # dedicated tabular Q-learning agent
+      train.py                               # dedicated Q-learning trainer
+    sarsa/
+      agent.py                               # dedicated tabular SARSA agent
+      train.py                               # dedicated SARSA trainer
     envs/
       mountain_car_discrete.py               # MountainCar-v0 constructor and spec info
       mountain_car_continuous.py             # MountainCarContinuous-v0 constructor and spec info
@@ -106,6 +114,10 @@ From the repository root:
 
 - Q-learning (discrete):
   - `python -m src.training.train --config configs/q_learning_discrete.yaml --project-root .`
+- Standalone Q-learning package (separate directory):
+  - `python -m src.q_learning.train --config configs/q_learning_separate.yaml --project-root .`
+- Standalone SARSA package (separate directory):
+  - `python -m src.sarsa.train --config configs/sarsa_discrete.yaml --project-root .`
 - DQN (discrete):
   - `python -m src.training.train --config configs/dqn_discrete.yaml --project-root .`
 - SAC (continuous):
