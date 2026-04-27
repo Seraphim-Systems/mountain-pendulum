@@ -131,7 +131,7 @@ class NeatAgent:
                 for k, v in g.nodes.items()
             ]
             connections = [
-                {"key": list(k), "weight": v.weight, "enabled": v.enabled}
+                {"key": list(k), "weight": v.weight, "enabled": v.enabled, "innovation": v.innovation}
                 for k, v in g.connections.items()
             ]
             data = {"best_fitness": self._best_fitness, "nodes": nodes, "connections": connections}
@@ -159,7 +159,7 @@ class NeatAgent:
 
         for c in data["connections"]:
             key = tuple(c["key"])
-            conn = neat.genes.DefaultConnectionGene(key)
+            conn = neat.genes.DefaultConnectionGene(key, innovation=int(c["innovation"]))
             conn.weight = float(c["weight"])
             conn.enabled = bool(c["enabled"])
             genome.connections[key] = conn
