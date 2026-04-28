@@ -1,0 +1,26 @@
+experiment_name: ppo_continuous
+agent: ppo
+env:
+  id: MountainCarContinuous-v0
+  wrappers:
+    energy_shaping:
+      energy_weight: 0.3
+    record_episode_stats: true
+train:
+  total_timesteps: 300000
+  eval_freq: 5000
+  eval_episodes: 20
+  seeds: [42]
+  save_path: outputs/models/ppo_best
+ppo:
+  learning_rate: 0.0003
+  n_steps: 2048
+  batch_size: 64
+  gamma: 0.99
+  clip_range: 0.2
+  ent_coef: 0.01
+  hidden_sizes: [256, 256]
+paths:
+  logs_dir: outputs/logs
+  models_dir: outputs/models
+  figures_dir: outputs/figures
