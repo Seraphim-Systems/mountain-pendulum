@@ -149,6 +149,26 @@ The framework and notebooks support:
 
 Figures are saved in `outputs/figures/`.
 
+## Render trained MountainCar policies
+
+Use the rollout renderer to watch a trained tabular policy in a live window or export a GIF. The command loads the policy table saved by the standalone Q-learning or SARSA trainers.
+
+Live window mode:
+
+- Q-learning:
+  - `python -m src.visualization.mountain_car_rollout --config configs/q_learning_separate.yaml --policy outputs/models/q_learning_discrete_separate_seed21_policy.npy --live --seed 21 --episodes 1 --max-steps 200 --label q_learning`
+- SARSA:
+  - `python -m src.visualization.mountain_car_rollout --config configs/sarsa_discrete.yaml --policy outputs/models/sarsa_discrete_seed21_policy.npy --live --seed 21 --episodes 1 --max-steps 200 --label sarsa`
+
+GIF export mode:
+
+- Q-learning:
+  - `python -m src.visualization.mountain_car_rollout --config configs/q_learning_separate.yaml --policy outputs/models/q_learning_discrete_separate_seed21_policy.npy --output outputs/figures/q_learning_discrete_separate_seed21_rollout.gif --seed 21 --episodes 1 --max-steps 200 --fps 20 --label q_learning`
+- SARSA:
+  - `python -m src.visualization.mountain_car_rollout --config configs/sarsa_discrete.yaml --policy outputs/models/sarsa_discrete_seed21_policy.npy --output outputs/figures/sarsa_discrete_seed21_rollout.gif --seed 21 --episodes 1 --max-steps 200 --fps 20 --label sarsa`
+
+If you trained with a different seed, replace the policy path with your own file from `outputs/models/`. The rollout renderer reads the saved `.npy` policy table, reconstructs the MountainCar environment using the matching config file, and then steps the policy in real time.
+
 ## Procedural sensor-car visualization
 
 This repository now includes a separate visualization demo that is intentionally closer to the "car with probes" style you described.
