@@ -87,11 +87,11 @@ class EnergyShapingRewardWrapper(gym.Wrapper):
 
 
 class DiscreteFuelCostWrapper(gym.Wrapper):
-    """Scenario 3: penalise left/right actions (-1 each); idle is free; +100 at goal."""
+    """Scenario 3: engine costs -1/step; idle costs -0.5/step (idle burn); +100 at goal."""
 
     def step(self, action: int) -> tuple[np.ndarray, float, bool, bool, dict]:
         obs, _, terminated, truncated, info = self.env.step(action)
-        fuel_cost = 0.0 if int(action) == 1 else -1.0
+        fuel_cost = -0.5 if int(action) == 1 else -1.0
         reward = fuel_cost + (100.0 if terminated else 0.0)
         return obs, reward, terminated, truncated, info
 
