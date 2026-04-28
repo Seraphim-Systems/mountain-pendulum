@@ -12,11 +12,9 @@ import matplotlib.colors as mcolors
 import networkx as nx
 import numpy as np
 
-# Suppress networkx/matplotlib edge-drawing deprecation warnings
-warnings.filterwarnings("ignore", message=".*arrows.*", category=UserWarning)
-warnings.filterwarnings("ignore", message=".*connectionstyle.*", category=UserWarning)
-warnings.filterwarnings("ignore", message=".*min_source_margin.*", category=UserWarning)
-warnings.filterwarnings("ignore", message=".*min_target_margin.*", category=UserWarning)
+# Suppress networkx edge-drawing UserWarnings (API changed in networkx 3.x;
+# messages start with \n so message-pattern filters fail — target by module instead)
+warnings.filterwarnings("ignore", category=UserWarning, module=r"networkx")
 
 
 _INPUT_COLOR = "#4A90D9"
