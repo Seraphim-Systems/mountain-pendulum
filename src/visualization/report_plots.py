@@ -28,9 +28,9 @@ _AGENTS = ["simple_ga", "cma_es", "neat"]
 _SCENARIOS = ["discrete", "continuous", "fuel", "minsteps"]
 _SCENARIO_LABELS = {
     "discrete": "MountainCar-v0 (min steps)",
-    "continuous": "MountainCarContinuous-v0 (min fuel)",
-    "fuel": "MountainCar-v0 (min fuel)",
-    "minsteps": "MountainCarContinuous-v0 (min steps)",
+    "continuous": "MountainCarContinuous-v0 (standard / min energy)",
+    "fuel": "MountainCar-v0 (fuel cost)",
+    "minsteps": "MountainCarContinuous-v0 (linear step cost)",
 }
 _AGENT_LABELS = {
     "simple_ga": "Simple GA",

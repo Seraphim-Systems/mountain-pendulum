@@ -87,12 +87,16 @@ class EnergyShapingRewardWrapper(gym.Wrapper):
 
 
 class DiscreteFuelCostWrapper(gym.Wrapper):
-    """Scenario 3: engine costs -1/step; idle costs -0.5/step (idle burn); +100 at goal."""
+    """Scenario 3: uniform -1/step cost + explicit +100 goal bonus.
+
+    All actions cost equally so no neutral-action trap; the fuel efficiency
+    concept is expressed through the explicit terminal bonus (vs. the base
+    discrete variant which has no bonus and relies on episode-length alone).
+    """
 
     def step(self, action: int) -> tuple[np.ndarray, float, bool, bool, dict]:
         obs, _, terminated, truncated, info = self.env.step(action)
-        fuel_cost = -0.5 if int(action) == 1 else -1.0
-        reward = fuel_cost + (100.0 if terminated else 0.0)
+        reward = -1.0 + (100.0 if terminated else 0.0)
         return obs, reward, terminated, truncated, info
 
 
