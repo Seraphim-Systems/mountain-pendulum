@@ -10,6 +10,7 @@ import numpy as np
 
 from src.agents.dqn import DQNBaseline
 from src.agents.q_learning import QLearningAgent
+from src.agents.reinforce import REINFORCEBaseline
 from src.agents.sac import SACBaseline
 from src.training.train import build_agent, build_env, rollout_episode
 from src.utils.config import ensure_paths, load_config
@@ -24,9 +25,7 @@ def load_agent_from_checkpoint(
     agent = build_agent(config, env)
     if isinstance(agent, QLearningAgent):
         agent.load(checkpoint_path)
-    elif isinstance(agent, DQNBaseline):
-        agent.load(checkpoint_path, env)
-    elif isinstance(agent, SACBaseline):
+    elif isinstance(agent, (DQNBaseline, REINFORCEBaseline, SACBaseline)):
         agent.load(checkpoint_path, env)
     else:
         raise ValueError("Unsupported agent type during checkpoint load.")

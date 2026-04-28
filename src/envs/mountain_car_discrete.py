@@ -10,6 +10,8 @@ from .wrappers import (
     AugmentStateWrapper,
     DiscreteFuelCostWrapper,
     DiscretizeStateWrapper,
+    EnergyShapingRewardWrapper,
+    ProgressAndGoalRewardWrapper,
     RecordEpisodeStatsWrapper,
 )
 
@@ -41,6 +43,22 @@ def make_discrete_env(
 
     if wrappers.get("fuel_cost"):
         env = DiscreteFuelCostWrapper(env)
+
+    if wrappers.get("energy_shaping"):
+        kwargs = (
+            wrappers["energy_shaping"]
+            if isinstance(wrappers["energy_shaping"], dict)
+            else {}
+        )
+        env = EnergyShapingRewardWrapper(env, **kwargs)
+
+    if wrappers.get("progress_goal_reward"):
+        kwargs = (
+            wrappers["progress_goal_reward"]
+            if isinstance(wrappers["progress_goal_reward"], dict)
+            else {}
+        )
+        env = ProgressAndGoalRewardWrapper(env, **kwargs)
 
     if wrappers.get("record_episode_stats"):
         env = RecordEpisodeStatsWrapper(env)

@@ -1,0 +1,30 @@
+experiment_name: reinforce_discrete_teacher
+agent: reinforce
+env:
+  id: MountainCar-v0
+  wrappers:
+    augment_state: true
+    progress_goal_reward:
+      progress_weight: 4.0
+      goal_bonus: 150.0
+    record_episode_stats: true
+train:
+  episodes: 20
+  max_steps_per_episode: 200
+  eval_every: 5
+  eval_episodes: 30
+  seeds: [7]
+  save_every: 5
+reinforce:
+  learning_rate: 0.0003
+  gamma: 0.995
+  entropy_coef: 0.0
+  value_fn_coef: 0.5
+  hidden_sizes: [128, 128]
+  batch_episodes: 8
+  teacher_checkpoint: outputs/models/dqn_discrete_solve_seed7_final.zip
+  teacher_pretrain_episodes: 300
+paths:
+  logs_dir: outputs/logs
+  models_dir: outputs/models
+  figures_dir: outputs/figures
