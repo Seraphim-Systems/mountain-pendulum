@@ -89,8 +89,10 @@ class NeatAgent:
             if self._discrete:
                 action = int(np.argmax(output))
             else:
-                action = np.array(
-                    [np.tanh(v) * self._action_scale for v in output], dtype=np.float32
+                # Network already applies tanh activation (see continuous template).
+                # Clip to [-1, 1] avoids double-tanh squashing max force to ~0.76.
+                action = np.clip(
+                    np.array(output, dtype=np.float32) * self._action_scale, -1.0, 1.0
                 )
             obs, reward, terminated, truncated, _ = self._env.step(action)
             total_reward += float(reward)
@@ -127,8 +129,8 @@ class NeatAgent:
         output = self._activate(genome, np.asarray(obs, dtype=np.float32))
         if self._discrete:
             return int(np.argmax(output))
-        return np.array(
-            [np.tanh(v) * self._action_scale for v in output], dtype=np.float32
+        return np.clip(
+            np.array(output, dtype=np.float32) * self._action_scale, -1.0, 1.0
         ).reshape(-1)
 
     def save(self, model_path: str | Path) -> None:
