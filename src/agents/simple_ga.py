@@ -28,15 +28,13 @@ class SimpleGAAgent:
         self._augment = env.observation_space.shape[0] == 4
         self._action_scale = float(env.action_space.high[0]) if not self._discrete else 1.0
 
-        # Note: MPS (Apple Silicon) is explicitly disabled because the PyTorch-to-Metal dispatch 
-        # latency for sequential RL step loops is slower than native CPU execution.
+        # MPS disabled: Metal dispatch latency for sequential env loops is slower than CPU.
+        # CUDA helps the batched forward pass but env stepping is the real bottleneck,
+        # so don't inflate population size — that multiplies env steps linearly.
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._net.to(self.device)
 
-        # Dynamic Batching: only scale up on CUDA
-        if self.device.type == "cuda":
-            population_size = max(population_size, 500)
-            
+
         self._population_size = population_size
         self._elite_frac = elite_frac
         self._mutation_std = mutation_std
