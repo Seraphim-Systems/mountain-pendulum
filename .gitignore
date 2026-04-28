@@ -12,3 +12,6 @@ build/
 .DS_Store
 .venv/
 venv/
+Report/
+run_updated.log
+run_updated.sh
