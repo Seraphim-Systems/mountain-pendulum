@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import warnings
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -10,6 +11,12 @@ import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 import networkx as nx
 import numpy as np
+
+# Suppress networkx/matplotlib edge-drawing deprecation warnings
+warnings.filterwarnings("ignore", message=".*arrows.*", category=UserWarning)
+warnings.filterwarnings("ignore", message=".*connectionstyle.*", category=UserWarning)
+warnings.filterwarnings("ignore", message=".*min_source_margin.*", category=UserWarning)
+warnings.filterwarnings("ignore", message=".*min_target_margin.*", category=UserWarning)
 
 
 _INPUT_COLOR = "#4A90D9"
