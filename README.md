@@ -129,6 +129,8 @@ From the repository root:
 
 ## Evaluate checkpoints
 
+For a focused, in-repo explanation of the tabular Q-learning and SARSA implementations, see `docs/q_learning_sarsa.md`.
+
 Example:
 
 - `python -m src.training.evaluate --config configs/dqn_discrete.yaml --checkpoint outputs/models/dqn_discrete_seed42_final.zip --seed 42 --episodes 30 --project-root .`
