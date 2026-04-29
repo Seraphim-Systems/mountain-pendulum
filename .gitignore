@@ -2,9 +2,7 @@ __pycache__/
 *.pyc
 *.pyo
 .ipynb_checkpoints/
-outputs/logs/
 outputs/models/
-outputs/figures/
 .env
 *.egg-info/
 dist/
@@ -12,6 +10,5 @@ build/
 .DS_Store
 .venv/
 venv/
-Report/
 run_updated.log
 run_updated.sh

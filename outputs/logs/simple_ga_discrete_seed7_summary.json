@@ -1,0 +1,12 @@
+{
+  "experiment_name": "simple_ga_discrete",
+  "seed": 7,
+  "agent": "simple_ga",
+  "env_id": "MountainCar-v0",
+  "reward_mean": -132.78405271903904,
+  "reward_std": 29.879461603237818,
+  "success_rate": 0.78,
+  "mean_episode_length": 148.24,
+  "eval_mean_reward_last": -137.24560795011956,
+  "final_model_path": "outputs/models/simple_ga_discrete_seed7_final"
+}

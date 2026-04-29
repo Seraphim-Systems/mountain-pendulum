@@ -1,0 +1,11 @@
+{
+  "experiment_name": "cma_es_discrete",
+  "agent": "cma_es",
+  "env_id": "MountainCar-v0",
+  "n_seeds": 3,
+  "reward_mean": -140.66868999063968,
+  "reward_std_across_seeds": 6.4605865213636715,
+  "success_rate_mean": 0.7016666666666667,
+  "success_rate_std": 0.04588633299312067,
+  "episode_length_mean": 155.54333333333332
+}

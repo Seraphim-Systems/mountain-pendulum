@@ -1,0 +1,4 @@
+experiment_name,seed,agent,env_id,reward_mean,reward_std,success_rate,mean_episode_length,eval_mean_reward_last,final_model_path
+neat_continuous,7,neat,MountainCarContinuous-v0,67.13671990290732,57.96690707417461,0.21,976.795,70.37783201456075,outputs/models/neat_continuous_seed7_final
+neat_continuous,21,neat,MountainCarContinuous-v0,110.76795563440795,63.36082589782476,0.55,921.21,123.14981512791026,outputs/models/neat_continuous_seed21_final
+neat_continuous,42,neat,MountainCarContinuous-v0,58.32326847713632,52.3337205513445,0.18,976.205,62.39488953837677,outputs/models/neat_continuous_seed42_final

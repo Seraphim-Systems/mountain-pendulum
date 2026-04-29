@@ -1,0 +1,12 @@
+{
+  "experiment_name": "cma_es_fuel",
+  "seed": 21,
+  "agent": "cma_es",
+  "env_id": "MountainCar-v0",
+  "reward_mean": -77.50237384584425,
+  "reward_std": 81.61765570472653,
+  "success_rate": 0.38,
+  "mean_episode_length": 182.505,
+  "eval_mean_reward_last": 25.49074915946403,
+  "final_model_path": "outputs/models/cma_es_fuel_seed21_final"
+}

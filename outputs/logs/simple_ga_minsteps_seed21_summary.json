@@ -1,0 +1,12 @@
+{
+  "experiment_name": "simple_ga_minsteps",
+  "seed": 21,
+  "agent": "simple_ga",
+  "env_id": "MountainCarContinuous-v0",
+  "reward_mean": 86.3311951307661,
+  "reward_std": 24.420591458838366,
+  "success_rate": 0.97,
+  "mean_episode_length": 362.635,
+  "eval_mean_reward_last": 92.5591393284814,
+  "final_model_path": "outputs/models/simple_ga_minsteps_seed21_final"
+}

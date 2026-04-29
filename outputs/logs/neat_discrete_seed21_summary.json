@@ -1,0 +1,12 @@
+{
+  "experiment_name": "neat_discrete",
+  "seed": 21,
+  "agent": "neat",
+  "env_id": "MountainCar-v0",
+  "reward_mean": -69.28641274432576,
+  "reward_std": 24.783854068329507,
+  "success_rate": 0.935,
+  "mean_episode_length": 129.715,
+  "eval_mean_reward_last": -51.19998070197471,
+  "final_model_path": "outputs/models/neat_discrete_seed21_final"
+}
