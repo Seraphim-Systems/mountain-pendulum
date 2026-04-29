@@ -116,8 +116,12 @@ From the repository root:
   - `python -m src.training.train --config configs/q_learning_discrete.yaml --project-root .`
 - Standalone Q-learning package (separate directory):
   - `python -m src.q_learning.train --config configs/q_learning_separate.yaml --project-root .`
+- Tuned standalone Q-learning:
+  - `python -m src.q_learning.train --config configs/q_learning_tuned.yaml --project-root .`
 - Standalone SARSA package (separate directory):
   - `python -m src.sarsa.train --config configs/sarsa_discrete.yaml --project-root .`
+- Tuned standalone SARSA:
+  - `python -m src.sarsa.train --config configs/sarsa_tuned.yaml --project-root .`
 - DQN (discrete):
   - `python -m src.training.train --config configs/dqn_discrete.yaml --project-root .`
 - SAC (continuous):
