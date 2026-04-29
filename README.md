@@ -32,9 +32,17 @@ The code enforces and checks the following assumptions:
   .gitignore                                 # ignores caches, venv, and generated outputs
   configs/
     q_learning_discrete.yaml                 # tabular baseline config
+    q_learning_separate.yaml                 # standalone Q-learning config
+    sarsa_discrete.yaml                      # standalone SARSA config
     dqn_discrete.yaml                        # DQN baseline config
     sac_continuous.yaml                      # SAC baseline config
   src/
+    q_learning/
+      agent.py                               # dedicated tabular Q-learning agent
+      train.py                               # dedicated Q-learning trainer
+    sarsa/
+      agent.py                               # dedicated tabular SARSA agent
+      train.py                               # dedicated SARSA trainer
     envs/
       mountain_car_discrete.py               # MountainCar-v0 constructor and spec info
       mountain_car_continuous.py             # MountainCarContinuous-v0 constructor and spec info
@@ -106,6 +114,14 @@ From the repository root:
 
 - Q-learning (discrete):
   - `python -m src.training.train --config configs/q_learning_discrete.yaml --project-root .`
+- Standalone Q-learning package (separate directory):
+  - `python -m src.q_learning.train --config configs/q_learning_separate.yaml --project-root .`
+- Tuned standalone Q-learning:
+  - `python -m src.q_learning.train --config configs/q_learning_tuned.yaml --project-root .`
+- Standalone SARSA package (separate directory):
+  - `python -m src.sarsa.train --config configs/sarsa_discrete.yaml --project-root .`
+- Tuned standalone SARSA:
+  - `python -m src.sarsa.train --config configs/sarsa_tuned.yaml --project-root .`
 - DQN (discrete):
   - `python -m src.training.train --config configs/dqn_discrete.yaml --project-root .`
 - SAC (continuous):
@@ -136,6 +152,26 @@ The framework and notebooks support:
 - phase-portrait-style interpretation plots
 
 Figures are saved in `outputs/figures/`.
+
+## Render trained MountainCar policies
+
+Use the rollout renderer to watch a trained tabular policy in a live window or export a GIF. The command loads the policy table saved by the standalone Q-learning or SARSA trainers.
+
+Live window mode:
+
+- Q-learning:
+  - `python -m src.visualization.mountain_car_rollout --config configs/q_learning_separate.yaml --policy outputs/models/q_learning_discrete_separate_seed21_policy.npy --live --seed 21 --episodes 1 --max-steps 200 --label q_learning`
+- SARSA:
+  - `python -m src.visualization.mountain_car_rollout --config configs/sarsa_discrete.yaml --policy outputs/models/sarsa_discrete_seed21_policy.npy --live --seed 21 --episodes 1 --max-steps 200 --label sarsa`
+
+GIF export mode:
+
+- Q-learning:
+  - `python -m src.visualization.mountain_car_rollout --config configs/q_learning_separate.yaml --policy outputs/models/q_learning_discrete_separate_seed21_policy.npy --output outputs/figures/q_learning_discrete_separate_seed21_rollout.gif --seed 21 --episodes 1 --max-steps 200 --fps 20 --label q_learning`
+- SARSA:
+  - `python -m src.visualization.mountain_car_rollout --config configs/sarsa_discrete.yaml --policy outputs/models/sarsa_discrete_seed21_policy.npy --output outputs/figures/sarsa_discrete_seed21_rollout.gif --seed 21 --episodes 1 --max-steps 200 --fps 20 --label sarsa`
+
+If you trained with a different seed, replace the policy path with your own file from `outputs/models/`. The rollout renderer reads the saved `.npy` policy table, reconstructs the MountainCar environment using the matching config file, and then steps the policy in real time.
 
 ## Procedural sensor-car visualization
 
