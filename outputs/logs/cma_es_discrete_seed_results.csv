@@ -1,0 +1,4 @@
+experiment_name,seed,agent,env_id,reward_mean,reward_std,success_rate,mean_episode_length,eval_mean_reward_last,final_model_path
+cma_es_discrete,7,cma_es,MountainCar-v0,-135.16047509236233,37.05887772404617,0.75,149.02,-121.17232120214867,outputs/models/cma_es_discrete_seed7_final
+cma_es_discrete,21,cma_es,MountainCar-v0,-149.7357558410222,34.31788374609153,0.64,165.695,-136.67661904220694,outputs/models/cma_es_discrete_seed21_final
+cma_es_discrete,42,cma_es,MountainCar-v0,-137.10983903853446,35.46942632028984,0.715,151.915,-88.57738403250478,outputs/models/cma_es_discrete_seed42_final

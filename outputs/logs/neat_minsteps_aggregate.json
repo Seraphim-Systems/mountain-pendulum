@@ -1,0 +1,11 @@
+{
+  "experiment_name": "neat_minsteps",
+  "agent": "neat",
+  "env_id": "MountainCarContinuous-v0",
+  "n_seeds": 3,
+  "reward_mean": 75.082674150228,
+  "reward_std_across_seeds": 3.8172669591504307,
+  "success_rate_mean": 0.29666666666666663,
+  "success_rate_std": 0.0410960933531265,
+  "episode_length_mean": 966.1133333333333
+}

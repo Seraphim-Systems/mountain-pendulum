@@ -1,0 +1,32 @@
+experiment_name: dqn_discrete_solve
+agent: dqn
+env:
+  id: MountainCar-v0
+  wrappers:
+    augment_state: true
+    energy_shaping:
+      energy_weight: 0.6
+    record_episode_stats: true
+train:
+  episodes: 500
+  max_steps_per_episode: 200
+  eval_every: 25
+  eval_episodes: 20
+  seeds: [7]
+  save_every: 100
+dqn:
+  learning_rate: 0.0005
+  gamma: 0.99
+  epsilon_start: 1.0
+  epsilon_end: 0.02
+  epsilon_decay: 0.995
+  exploration_fraction: 0.25
+  batch_size: 64
+  replay_buffer_size: 100000
+  min_buffer_size: 2000
+  target_update_freq: 250
+  hidden_sizes: [256, 256]
+paths:
+  logs_dir: outputs/logs
+  models_dir: outputs/models
+  figures_dir: outputs/figures

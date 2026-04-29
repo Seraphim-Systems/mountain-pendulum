@@ -1,0 +1,12 @@
+{
+  "experiment_name": "neat_continuous",
+  "seed": 42,
+  "agent": "neat",
+  "env_id": "MountainCarContinuous-v0",
+  "reward_mean": 58.32326847713632,
+  "reward_std": 52.3337205513445,
+  "success_rate": 0.18,
+  "mean_episode_length": 976.205,
+  "eval_mean_reward_last": 62.39488953837677,
+  "final_model_path": "outputs/models/neat_continuous_seed42_final"
+}

@@ -1,0 +1,12 @@
+{
+  "experiment_name": "cma_es_continuous",
+  "seed": 42,
+  "agent": "cma_es",
+  "env_id": "MountainCarContinuous-v0",
+  "reward_mean": 88.3347281374209,
+  "reward_std": 13.039232004993437,
+  "success_rate": 0.985,
+  "mean_episode_length": 315.38,
+  "eval_mean_reward_last": 85.74604567226439,
+  "final_model_path": "outputs/models/cma_es_continuous_seed42_final"
+}
