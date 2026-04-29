@@ -22,10 +22,13 @@ class DQNBaseline:
         epsilon_decay: float,
         batch_size: int,
         replay_buffer_size: int,
+        learning_starts: int,
         target_update_freq: int,
         hidden_sizes: list[int],
+        exploration_fraction: float | None = None,
     ) -> None:
-        exploration_fraction = min(1.0, max(1e-4, 1.0 - epsilon_decay))
+        if exploration_fraction is None:
+            exploration_fraction = min(1.0, max(1e-4, 1.0 - epsilon_decay))
         self.model = DQN(
             policy="MlpPolicy",
             env=env,
@@ -36,6 +39,7 @@ class DQNBaseline:
             exploration_fraction=exploration_fraction,
             batch_size=batch_size,
             buffer_size=replay_buffer_size,
+            learning_starts=learning_starts,
             target_update_interval=target_update_freq,
             policy_kwargs={"net_arch": hidden_sizes},
             verbose=0,

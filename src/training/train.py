@@ -16,6 +16,7 @@ from src.agents.cma_es import CMAESAgent
 from src.agents.dqn import DQNBaseline
 from src.agents.neat_agent import NeatAgent
 from src.agents.q_learning import QLearningAgent
+from src.agents.reinforce import REINFORCEBaseline
 from src.agents.sac import SACBaseline
 from src.agents.simple_ga import SimpleGAAgent
 from src.envs.mountain_car_continuous import make_continuous_env
@@ -66,8 +67,28 @@ def build_agent(config: dict[str, Any], env: Any) -> Any:
             epsilon_decay=float(dqn_cfg["epsilon_decay"]),
             batch_size=int(dqn_cfg["batch_size"]),
             replay_buffer_size=int(dqn_cfg["replay_buffer_size"]),
+            learning_starts=int(dqn_cfg.get("min_buffer_size", 1000)),
             target_update_freq=int(dqn_cfg["target_update_freq"]),
             hidden_sizes=list(dqn_cfg["hidden_sizes"]),
+            exploration_fraction=(
+                float(dqn_cfg["exploration_fraction"])
+                if "exploration_fraction" in dqn_cfg
+                else None
+            ),
+        )
+
+    if agent_name == "reinforce":
+        reinforce_cfg = config["reinforce"]
+        return REINFORCEBaseline(
+            env=env,
+            learning_rate=float(reinforce_cfg["learning_rate"]),
+            gamma=float(reinforce_cfg["gamma"]),
+            entropy_coef=float(reinforce_cfg.get("entropy_coef", 0.01)),
+            value_fn_coef=float(reinforce_cfg.get("value_fn_coef", 0.5)),
+            hidden_sizes=list(reinforce_cfg.get("hidden_sizes", [128, 128])),
+            batch_episodes=int(reinforce_cfg.get("batch_episodes", 8)),
+            teacher_checkpoint=reinforce_cfg.get("teacher_checkpoint"),
+            teacher_pretrain_episodes=int(reinforce_cfg.get("teacher_pretrain_episodes", 64)),
         )
 
     if agent_name == "sac":
@@ -131,7 +152,7 @@ def rollout_episode(
         else:
             action = agent.predict(obs, deterministic=deterministic)
 
-        obs, reward, terminated, truncated, _ = env.step(action)
+        obs, reward, terminated, truncated, _ = env.step(int(action))
         total_reward += float(reward)
         steps += 1
         done = bool(terminated or truncated)

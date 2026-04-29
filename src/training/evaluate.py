@@ -12,6 +12,7 @@ from src.agents.cma_es import CMAESAgent
 from src.agents.dqn import DQNBaseline
 from src.agents.neat_agent import NeatAgent
 from src.agents.q_learning import QLearningAgent
+from src.agents.reinforce import REINFORCEBaseline
 from src.agents.sac import SACBaseline
 from src.agents.simple_ga import SimpleGAAgent
 from src.training.train import build_agent, build_env, rollout_episode
@@ -27,9 +28,7 @@ def load_agent_from_checkpoint(
     agent = build_agent(config, env)
     if isinstance(agent, QLearningAgent):
         agent.load(checkpoint_path)
-    elif isinstance(agent, DQNBaseline):
-        agent.load(checkpoint_path, env)
-    elif isinstance(agent, SACBaseline):
+    elif isinstance(agent, (DQNBaseline, REINFORCEBaseline, SACBaseline)):
         agent.load(checkpoint_path, env)
     elif isinstance(agent, (SimpleGAAgent, CMAESAgent, NeatAgent)):
         agent.load(checkpoint_path, env)

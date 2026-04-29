@@ -86,6 +86,31 @@ class EnergyShapingRewardWrapper(gym.Wrapper):
         return obs, shaped_reward, terminated, truncated, info
 
 
+class ProgressAndGoalRewardWrapper(gym.Wrapper):
+    """Add progress reward and a terminal goal bonus to sparse MountainCar reward."""
+
+    def __init__(self, env: gym.Env, progress_weight: float = 2.0, goal_bonus: float = 100.0) -> None:
+        super().__init__(env)
+        self.progress_weight = float(progress_weight)
+        self.goal_bonus = float(goal_bonus)
+        self._prev_position = 0.0
+
+    def reset(self, **kwargs: Any) -> tuple[np.ndarray, dict[str, Any]]:
+        obs, info = self.env.reset(**kwargs)
+        self._prev_position = float(obs[0])
+        return obs, info
+
+    def step(self, action: Any) -> tuple[np.ndarray, float, bool, bool, dict[str, Any]]:
+        obs, reward, terminated, truncated, info = self.env.step(action)
+        position = float(obs[0])
+        progress = position - self._prev_position
+        shaped_reward = float(reward + self.progress_weight * progress)
+        if terminated and not truncated:
+            shaped_reward += self.goal_bonus
+        self._prev_position = position
+        return obs, shaped_reward, terminated, truncated, info
+
+
 class DiscreteFuelCostWrapper(gym.Wrapper):
     """Scenario 3: uniform -1/step cost + explicit +100 goal bonus.
 
