@@ -1,0 +1,22 @@
+experiment_name: cma_es_minsteps
+agent: cma_es
+env:
+  id: MountainCarContinuous-v0
+  wrappers:
+    step_cost: true
+    record_episode_stats: true
+train:
+  episodes: 200
+  max_steps_per_episode: 999
+  eval_every: 20
+  eval_episodes: 10
+  seeds: [7, 21, 42]
+  save_every: 50
+cma_es:
+  population_size: 50
+  sigma0: 0.5
+  hidden_sizes: [64, 64]
+paths:
+  logs_dir: outputs/logs
+  models_dir: outputs/models
+  figures_dir: outputs/figures

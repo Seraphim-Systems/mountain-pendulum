@@ -1,25 +1,23 @@
-experiment_name: q_learning_fuel
-agent: q_learning
+experiment_name: q_learning_discrete_tuned
+algorithm: q_learning
 env:
   id: MountainCar-v0
   wrappers:
     discretize_state:
-      n_bins: 24
-    fuel_cost: true
+      n_bins: 32
     record_episode_stats: true
 train:
-  episodes: 2000
+  episodes: 5000
   max_steps_per_episode: 200
   eval_every: 100
-  eval_episodes: 20
-  seeds: [7, 21, 42]
-  save_every: 500
+  eval_episodes: 30
+  seeds: [7, 21, 42, 84, 126]
 q_learning:
   learning_rate: 0.1
-  gamma: 0.99
+  gamma: 0.995
   epsilon_start: 1.0
-  epsilon_end: 0.02
-  epsilon_decay: 0.995
+  epsilon_end: 0.01
+  epsilon_decay: 0.998
 paths:
   logs_dir: outputs/logs
   models_dir: outputs/models

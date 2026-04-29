@@ -1,0 +1,4 @@
+experiment_name,seed,agent,env_id,reward_mean,reward_std,success_rate,mean_episode_length,eval_mean_reward_last,final_model_path
+simple_ga_fuel,7,simple_ga,MountainCar-v0,-42.32266506855135,89.96295066266741,0.63,165.5,-2.479300919128582,outputs/models/simple_ga_fuel_seed7_final
+simple_ga_fuel,21,simple_ga,MountainCar-v0,-72.47350273656365,83.94599092669804,0.53,185.405,-66.8175014217566,outputs/models/simple_ga_fuel_seed21_final
+simple_ga_fuel,42,simple_ga,MountainCar-v0,-50.454171500833546,85.18850871146218,0.495,164.37,44.92453594288818,outputs/models/simple_ga_fuel_seed42_final

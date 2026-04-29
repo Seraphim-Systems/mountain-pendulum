@@ -17,10 +17,8 @@ def make_continuous_env(
     env = gym.make("MountainCarContinuous-v0", render_mode=render_mode)
     wrappers = wrappers or {}
 
-    if wrappers.get("energy_shaping") and wrappers.get("step_cost"):
-        raise ValueError(
-            "energy_shaping and step_cost are mutually exclusive reward wrappers."
-        )
+    if wrappers.get("step_cost"):
+        env = ContinuousStepCostWrapper(env)
 
     if wrappers.get("energy_shaping"):
         kwargs = (
@@ -29,9 +27,6 @@ def make_continuous_env(
             else {}
         )
         env = EnergyShapingRewardWrapper(env, **kwargs)
-
-    if wrappers.get("step_cost"):
-        env = ContinuousStepCostWrapper(env)
 
     if wrappers.get("record_episode_stats"):
         env = RecordEpisodeStatsWrapper(env)

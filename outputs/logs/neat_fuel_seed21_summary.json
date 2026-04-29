@@ -1,0 +1,12 @@
+{
+  "experiment_name": "neat_fuel",
+  "seed": 21,
+  "agent": "neat",
+  "env_id": "MountainCar-v0",
+  "reward_mean": 22.324974259577015,
+  "reward_std": 46.0346932868106,
+  "success_rate": 0.94,
+  "mean_episode_length": 135.245,
+  "eval_mean_reward_last": 31.167566713144424,
+  "final_model_path": "outputs/models/neat_fuel_seed21_final"
+}
