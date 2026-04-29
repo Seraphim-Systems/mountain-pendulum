@@ -77,7 +77,16 @@ All values averaged over 3 seeds (7, 21, 42) × 200 training generations. **Bold
 | CMA-ES | 83.01 ± 2.37 | **99.5%** | 290.5 |
 | NEAT | 75.08 ± 3.82 | 29.7% | 966.1 |
 
-## 4. Visualizations
+## 4. Training Monitoring
+
+All training runs emit TensorBoard event files to `outputs/logs/<run_name>/events.out.tfevents.*`. Logged scalars per run: `fitness/mean`, `fitness/max`, `population_std`, `success_rate`, `episode_length`. To open the dashboard:
+
+```bash
+tensorboard --logdir outputs/logs --port 6006
+# → http://localhost:6006
+```
+
+## 5. Visualizations
 
 ### Cross-Agent Reward Comparisons
 
@@ -97,4 +106,18 @@ All values averaged over 3 seeds (7, 21, 42) × 200 training generations. **Bold
 
 ![Continuous Min-Steps Scenario](./minsteps_cross_agent_reward.png)
 
-*(Additional plots — seed envelopes, diversity curves, policy heatmaps, and NEAT topology animations — are available in `outputs/figures/` in the repository.)*
+*(Additional plots — seed envelopes, diversity curves, discrete policy heatmaps, continuous policy surfaces, phase portrait trajectories, feature sensitivity analysis, and NEAT topology animations — are available in `notebooks/04_genetic_algorithms.ipynb` and `outputs/figures/`.)*
+
+## 6. Policy Explanation Summary
+
+**Feature sensitivity** (first-layer weight norms and state-action Pearson correlation across a 40×40 grid):
+- `vel` and `KE=0.5v²` are the dominant features across all three algorithms and both discrete scenarios — the optimal bang-bang policy is primarily a function of velocity direction and magnitude.
+- `sin(3·pos)` provides a secondary signal, most useful near the goal boundary where it turns negative.
+- `pos` alone is the weakest predictor, consistent with the physical intuition that the car's absolute position matters far less than its current momentum.
+
+## 7. Lines of Future Development
+
+1. **Larger CMA-ES budget**: With ~4.7k parameters, covariance estimation requires far more than 10,000 evaluations. 5× budget should reveal CMA-ES's theoretical advantage over Simple GA.
+2. **Hybrid NEAT + CMA-ES**: Use NEAT to discover the minimal topology, then CMA-ES to fine-tune weights — combining structural discovery with fast covariance-adapted convergence.
+3. **Harder control tasks** (Pendulum-v1, LunarLander-v2): Test whether NEAT's topology flexibility scales to tasks requiring smooth proportional control rather than bang-bang policies.
+4. **Parallelised evaluation**: Vectorised fitness evaluation would enable populations of ~500 within the same wall-clock budget, closing the CMA-ES sample gap.
