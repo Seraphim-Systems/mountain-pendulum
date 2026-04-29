@@ -12,3 +12,4 @@ build/
 venv/
 run_updated.log
 run_updated.sh
+outputs/
