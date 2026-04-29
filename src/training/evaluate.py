@@ -8,9 +8,12 @@ from typing import Any
 
 import numpy as np
 
+from src.agents.cma_es import CMAESAgent
 from src.agents.dqn import DQNBaseline
+from src.agents.neat_agent import NeatAgent
 from src.agents.q_learning import QLearningAgent
 from src.agents.sac import SACBaseline
+from src.agents.simple_ga import SimpleGAAgent
 from src.training.train import build_agent, build_env, rollout_episode
 from src.utils.config import ensure_paths, load_config
 from src.utils.logging import dump_json
@@ -27,6 +30,8 @@ def load_agent_from_checkpoint(
     elif isinstance(agent, DQNBaseline):
         agent.load(checkpoint_path, env)
     elif isinstance(agent, SACBaseline):
+        agent.load(checkpoint_path, env)
+    elif isinstance(agent, (SimpleGAAgent, CMAESAgent, NeatAgent)):
         agent.load(checkpoint_path, env)
     else:
         raise ValueError("Unsupported agent type during checkpoint load.")

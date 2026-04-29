@@ -68,34 +68,35 @@ class AugmentStateWrapper(gym.ObservationWrapper):
 class EnergyShapingRewardWrapper(gym.Wrapper):
     """Add potential-energy-difference reward shaping term explicitly."""
 
-    def __init__(self, env: gym.Env, energy_weight: float = 0.2) -> None:
+    def __init__(self, env: gym.Env, energy_weight: float = 100.0) -> None:
         super().__init__(env)
         self.energy_weight = energy_weight
-        self._prev_position = 0.0
 
     def reset(self, **kwargs: Any) -> tuple[np.ndarray, dict[str, Any]]:
-        """Reset environment and initialize previous position."""
+        """Reset environment."""
         obs, info = self.env.reset(**kwargs)
-        self._prev_position = float(obs[0])
         return obs, info
 
     def step(self, action: Any) -> tuple[np.ndarray, float, bool, bool, dict[str, Any]]:
-        """Apply additive shaping reward based on potential change."""
+        """Apply additive shaping reward based on absolute kinetic momentum."""
         obs, reward, terminated, truncated, info = self.env.step(action)
-        position = float(obs[0])
-        delta_potential = np.sin(3.0 * position) - np.sin(3.0 * self._prev_position)
-        shaped_reward = float(reward + self.energy_weight * delta_potential)
-        self._prev_position = position
+        velocity = float(obs[1])
+        # Reward raw speed (momentum) to encourage swinging
+        shaped_reward = float(reward + self.energy_weight * abs(velocity))
         return obs, shaped_reward, terminated, truncated, info
 
 
 class DiscreteFuelCostWrapper(gym.Wrapper):
-    """Scenario 3: penalise left/right actions (-1 each); idle is free; +100 at goal."""
+    """Scenario 3: uniform -1/step cost + explicit +100 goal bonus.
+
+    All actions cost equally so no neutral-action trap; the fuel efficiency
+    concept is expressed through the explicit terminal bonus (vs. the base
+    discrete variant which has no bonus and relies on episode-length alone).
+    """
 
     def step(self, action: int) -> tuple[np.ndarray, float, bool, bool, dict]:
         obs, _, terminated, truncated, info = self.env.step(action)
-        fuel_cost = 0.0 if int(action) == 1 else -1.0
-        reward = fuel_cost + (100.0 if terminated else 0.0)
+        reward = -1.0 + (100.0 if terminated else 0.0)
         return obs, reward, terminated, truncated, info
 
 

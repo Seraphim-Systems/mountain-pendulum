@@ -1,0 +1,11 @@
+{
+  "experiment_name": "simple_ga_fuel",
+  "agent": "simple_ga",
+  "env_id": "MountainCar-v0",
+  "n_seeds": 3,
+  "reward_mean": -55.08344643531618,
+  "reward_std_across_seeds": 12.736846622692216,
+  "success_rate_mean": 0.5516666666666667,
+  "success_rate_std": 0.057203341005768384,
+  "episode_length_mean": 171.75833333333333
+}

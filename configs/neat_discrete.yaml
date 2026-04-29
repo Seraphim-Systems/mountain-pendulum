@@ -1,0 +1,23 @@
+experiment_name: neat_discrete
+agent: neat
+env:
+  id: MountainCar-v0
+  wrappers:
+    augment_state: true
+    energy_shaping:
+      energy_weight: 20.0
+    record_episode_stats: true
+train:
+  episodes: 200
+  max_steps_per_episode: 200
+  eval_every: 20
+  eval_episodes: 10
+  seeds: [7, 21, 42]
+  save_every: 50
+neat:
+  pop_size: 50
+  fitness_threshold: 90.0
+paths:
+  logs_dir: outputs/logs
+  models_dir: outputs/models
+  figures_dir: outputs/figures
