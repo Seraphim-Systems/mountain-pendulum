@@ -1,0 +1,13 @@
+{
+  "experiment_name": "sarsa_discrete_minfuel",
+  "seed": 42,
+  "algorithm": "sarsa",
+  "episodes": 3000,
+  "mean_reward": -117.88733333333333,
+  "std_reward": 112.37315207033318,
+  "success_rate": 0.346,
+  "mean_episode_length": 187.954,
+  "last_eval_mean_reward": 36.75,
+  "model_path": "C:\\Users\\hugok\\OneDrive\\Dokumenty\\GitHub\\mountain-pendulum\\outputs\\models\\sarsa_discrete_minfuel_seed42_final",
+  "policy_path": "C:\\Users\\hugok\\OneDrive\\Dokumenty\\GitHub\\mountain-pendulum\\outputs\\models\\sarsa_discrete_minfuel_seed42_policy.npy"
+}

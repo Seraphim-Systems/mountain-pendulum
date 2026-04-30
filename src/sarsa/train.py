@@ -9,7 +9,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from src.envs.mountain_car_discrete import make_discrete_env
+from src.envs.tabular_env import make_tabular_env
 from src.sarsa.agent import SarsaAgent
 from src.utils.config import ensure_paths, load_config
 from src.utils.logging import dump_json, make_writer
@@ -17,10 +17,12 @@ from src.utils.seeding import seed_env, seed_everything
 
 
 def _build_env(config: dict[str, Any]) -> Any:
-    wrappers = config.get("env", {}).get("wrappers", {})
+    env_cfg = config.get("env", {})
+    wrappers = env_cfg.get("wrappers", {})
     if "discretize_state" not in wrappers:
         raise ValueError("SARSA requires env.wrappers.discretize_state.n_bins")
-    return make_discrete_env(wrappers=wrappers)
+    env_id = env_cfg.get("id", "MountainCar-v0")
+    return make_tabular_env(env_id=env_id, wrappers=wrappers)
 
 
 def _build_agent(config: dict[str, Any], env: Any) -> SarsaAgent:
@@ -36,6 +38,7 @@ def _build_agent(config: dict[str, Any], env: Any) -> SarsaAgent:
         epsilon_start=float(s_cfg["epsilon_start"]),
         epsilon_end=float(s_cfg["epsilon_end"]),
         epsilon_decay=float(s_cfg["epsilon_decay"]),
+        optimistic_init=s_cfg.get("optimistic_init", 0.0),
     )
 
 
@@ -81,13 +84,15 @@ def train_single_seed(
             done = bool(terminated or truncated)
             next_action = 0 if done else agent.select_action(next_state)
 
+            # Only zero the future value at TRUE terminal states; truncation
+            # should still bootstrap from Q(next_state, next_action).
             agent.update(
                 state=state,
                 action=int(action),
                 reward=float(reward),
                 next_state=next_state,
                 next_action=int(next_action),
-                done=done,
+                done=bool(terminated),
             )
 
             state = next_state

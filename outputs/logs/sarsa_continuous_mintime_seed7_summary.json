@@ -1,0 +1,13 @@
+{
+  "experiment_name": "sarsa_continuous_mintime",
+  "seed": 7,
+  "algorithm": "sarsa",
+  "episodes": 3000,
+  "mean_reward": 164.59556666666668,
+  "std_reward": 67.00333845174349,
+  "success_rate": 0.918,
+  "mean_episode_length": 319.87766666666664,
+  "last_eval_mean_reward": 192.41250000000005,
+  "model_path": "C:\\Users\\hugok\\OneDrive\\Dokumenty\\GitHub\\mountain-pendulum\\outputs\\models\\sarsa_continuous_mintime_seed7_final",
+  "policy_path": "C:\\Users\\hugok\\OneDrive\\Dokumenty\\GitHub\\mountain-pendulum\\outputs\\models\\sarsa_continuous_mintime_seed7_policy.npy"
+}

@@ -1,0 +1,8 @@
+{
+  "experiment_name": "sarsa_discrete_tuned",
+  "algorithm": "sarsa",
+  "n_seeds": 5,
+  "mean_reward": -197.38952,
+  "std_reward_across_seeds": 0.11659362589781304,
+  "mean_success_rate": 0.11472000000000002
+}

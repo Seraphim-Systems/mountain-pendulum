@@ -1,0 +1,9 @@
+{
+  "experiment_name": "sarsa_continuous_mintime",
+  "algorithm": "sarsa",
+  "n_seeds": 3,
+  "mean_reward": 163.63848888888887,
+  "std_reward_across_seeds": 2.0998592427401,
+  "mean_success_rate": 0.9134444444444445,
+  "mean_episode_length": 324.4308888888889
+}

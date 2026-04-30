@@ -1,0 +1,9 @@
+{
+  "experiment_name": "sarsa_continuous_minfuel",
+  "algorithm": "sarsa",
+  "n_seeds": 3,
+  "mean_reward": 163.2169,
+  "std_reward_across_seeds": 2.0165841154706405,
+  "mean_success_rate": 0.9013333333333334,
+  "mean_episode_length": 345.5507777777778
+}

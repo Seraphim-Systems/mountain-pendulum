@@ -1,6 +1,0 @@
-DQN and REINFORCE requirements from assignment PDF
-================================================================================
-
-Line 94: • Design: state representations, rewards, types of RL algorithms, training strategies,
-Line 197: theory, algorithms, technical or practical issues involved in the project
-Line 404: Q-learning, and therefore

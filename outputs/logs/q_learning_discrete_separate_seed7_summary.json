@@ -1,0 +1,13 @@
+{
+  "experiment_name": "q_learning_discrete_separate",
+  "seed": 7,
+  "algorithm": "q_learning",
+  "episodes": 2000,
+  "mean_reward": -196.9705,
+  "std_reward": 9.645394224706422,
+  "success_rate": 0.1235,
+  "mean_episode_length": 196.9705,
+  "last_eval_mean_reward": -200.0,
+  "model_path": "outputs\\models\\q_learning_discrete_separate_seed7_final",
+  "policy_path": "outputs\\models\\q_learning_discrete_separate_seed7_policy.npy"
+}

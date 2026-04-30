@@ -1,0 +1,6 @@
+experiment_name,seed,algorithm,episodes,mean_reward,std_reward,success_rate,mean_episode_length,last_eval_mean_reward,model_path,policy_path
+q_learning_discrete_tuned,7,q_learning,5000,-194.4028,12.753436876387479,0.2332,194.4028,-191.33333333333334,outputs\models\q_learning_discrete_tuned_seed7_final,outputs\models\q_learning_discrete_tuned_seed7_policy.npy
+q_learning_discrete_tuned,21,q_learning,5000,-193.9442,14.021379616856537,0.2212,193.9442,-184.2,outputs\models\q_learning_discrete_tuned_seed21_final,outputs\models\q_learning_discrete_tuned_seed21_policy.npy
+q_learning_discrete_tuned,42,q_learning,5000,-193.8792,13.701671699467916,0.243,193.8792,-167.33333333333334,outputs\models\q_learning_discrete_tuned_seed42_final,outputs\models\q_learning_discrete_tuned_seed42_policy.npy
+q_learning_discrete_tuned,84,q_learning,5000,-193.5836,13.993263059058098,0.2386,193.5836,-161.86666666666667,outputs\models\q_learning_discrete_tuned_seed84_final,outputs\models\q_learning_discrete_tuned_seed84_policy.npy
+q_learning_discrete_tuned,126,q_learning,5000,-193.9948,13.322941603114531,0.2424,193.9948,-198.4,outputs\models\q_learning_discrete_tuned_seed126_final,outputs\models\q_learning_discrete_tuned_seed126_policy.npy

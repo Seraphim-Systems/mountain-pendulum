@@ -1,0 +1,30 @@
+experiment_name: q_learning_continuous_mintime
+agent: q_learning
+env:
+  id: MountainCarContinuous-v0
+  wrappers:
+    discretize_state:
+      n_bins: 24
+    discretize_action:
+      n_actions: 5
+    step_cost:
+      goal_bonus: 200.0
+    record_episode_stats: true
+train:
+  episodes: 3000
+  max_steps_per_episode: 999
+  eval_every: 100
+  eval_episodes: 20
+  seeds: [7, 21, 42]
+  save_every: 500
+q_learning:
+  learning_rate: 0.1
+  gamma: 0.99
+  epsilon_start: 1.0
+  epsilon_end: 0.05
+  epsilon_decay: 0.999
+  optimistic_init: 10.0
+paths:
+  logs_dir: outputs/logs
+  models_dir: outputs/models
+  figures_dir: outputs/figures
