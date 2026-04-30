@@ -8,7 +8,7 @@ import gymnasium as gym
 
 from .wrappers import (
     ContinuousStepCostWrapper,
-    DiscretizeActionWrapper,
+    DqnReinforceActionWrapper,
     EnergyShapingRewardWrapper,
     RecordEpisodeStatsWrapper,
 )
@@ -39,7 +39,7 @@ def make_continuous_env(
             if isinstance(wrappers["discretize_action"], dict)
             else {}
         )
-        env = DiscretizeActionWrapper(env, **kwargs)
+        env = DqnReinforceActionWrapper(env, **kwargs)
 
     if wrappers.get("record_episode_stats"):
         env = RecordEpisodeStatsWrapper(env)

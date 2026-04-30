@@ -259,11 +259,11 @@ class DqnReinforceActionWrapper(gym.ActionWrapper):
         super().__init__(env)
         if not isinstance(env.action_space, gym.spaces.Box):
             raise TypeError(
-                "DiscretizeActionWrapper requires a Box action space."
+                "DqnReinforceActionWrapper requires a Box action space."
             )
         if int(np.prod(env.action_space.shape)) != 1:
             raise ValueError(
-                "DiscretizeActionWrapper currently supports 1-D Box actions only."
+                "DqnReinforceActionWrapper currently supports 1-D Box actions only."
             )
         if int(n_actions) < 2:
             raise ValueError("n_actions must be at least 2.")
@@ -282,7 +282,8 @@ class DqnReinforceActionWrapper(gym.ActionWrapper):
                 f"Discrete action {idx} outside [0, {self.n_actions - 1}]."
             )
         return np.array([self._action_table[idx]], dtype=np.float32)
-      
+
+
 class DiscretizeActionWrapper(gym.ActionWrapper):
     """Expose a Discrete(N) action space over a continuous Box(-1, 1) base env.
 

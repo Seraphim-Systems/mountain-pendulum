@@ -25,7 +25,7 @@ reinforce:
   batch_episodes: 2
   # Behaviour-clone the continuous Gaussian policy from the discrete-action
   # DQN teacher trained on the same step-cost reward variant. Teacher's
-  # DiscretizeActionWrapper supplies the action table that turns its integer
+  # DqnReinforceActionWrapper supplies the action table that turns its integer
   # output into the continuous force the Gaussian student imitates.
   teacher_checkpoint: outputs/models/dqn_minsteps_seed7_final.zip
   teacher_pretrain_episodes: 40

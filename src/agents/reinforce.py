@@ -8,7 +8,7 @@ Optionally bootstraps the policy from a solved DQN teacher via behaviour
 cloning, including the cross-action-space case where a continuous Gaussian
 student is cloned from a discrete-action DQN teacher (the teacher's integer
 action is mapped back to a continuous force via the env's
-``DiscretizeActionWrapper`` action table).
+``DqnReinforceActionWrapper`` action table).
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ import torch.optim as optim
 from torch.distributions import Categorical, Normal
 
 from src.agents.dqn import DQNBaseline
-from src.envs.wrappers import DiscretizeActionWrapper
+from src.envs.wrappers import DiscretizeActionWrapper, DqnReinforceActionWrapper
 
 
 class ActorCriticNet(nn.Module):
@@ -225,16 +225,20 @@ class REINFORCEBaseline:
 
     @staticmethod
     def _find_discretize_action_table(env: Any) -> np.ndarray | None:
-        """Walk the wrapper stack to find a ``DiscretizeActionWrapper.action_table``.
+        """Walk the wrapper stack for a discrete-index → continuous-force table.
 
-        Returns the per-index continuous force array if present, else ``None``.
+        ``DqnReinforceActionWrapper`` (DQN / REINFORCE continuous envs) stores
+        ``_action_table``. Tabular code may use ``DiscretizeActionWrapper``
+        with ``_action_values`` instead.
         """
         node = env
         seen = set()
         while node is not None and id(node) not in seen:
             seen.add(id(node))
-            if isinstance(node, DiscretizeActionWrapper):
+            if isinstance(node, DqnReinforceActionWrapper):
                 return np.asarray(node._action_table, dtype=np.float32)
+            if isinstance(node, DiscretizeActionWrapper):
+                return np.asarray(node._action_values, dtype=np.float32)
             inner = getattr(node, "env", None)
             if inner is None or inner is node:
                 break
@@ -252,7 +256,8 @@ class REINFORCEBaseline:
 
         Supports the cross-action-space case: a continuous Gaussian student
         cloned from a discrete-action DQN teacher whose env wraps a
-        ``DiscretizeActionWrapper``. The teacher's integer action is mapped to
+        ``DqnReinforceActionWrapper`` (or tabular ``DiscretizeActionWrapper``).
+        The teacher's integer action is mapped to
         the corresponding continuous force, and the Gaussian policy is trained
         to maximise the log-probability of that force.
         """
@@ -276,7 +281,8 @@ class REINFORCEBaseline:
         if self.continuous and action_table is None:
             raise ValueError(
                 "Continuous-student teacher pretraining requires the teacher env "
-                "to include a DiscretizeActionWrapper (so discrete teacher "
+                "to include a DqnReinforceActionWrapper or DiscretizeActionWrapper "
+                "(so discrete teacher "
                 "actions can be mapped back to continuous forces)."
             )
 

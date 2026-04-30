@@ -27,7 +27,7 @@ reinforce:
   batch_episodes: 2
   # Behaviour-clone the continuous Gaussian policy from the discrete-action
   # DQN teacher trained on the same MountainCarContinuous-v0 + energy_shaping
-  # reward variant. The teacher's DiscretizeActionWrapper action table maps
+  # reward variant. The teacher's DqnReinforceActionWrapper action table maps
   # its integer action to the continuous force the Gaussian student should
   # imitate.
   teacher_checkpoint: outputs/models/dqn_continuous_seed7_final.zip
