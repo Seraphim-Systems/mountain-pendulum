@@ -1,0 +1,38 @@
+experiment_name: dqn_continuous
+agent: dqn
+env:
+  id: MountainCarContinuous-v0
+  wrappers:
+    energy_shaping:
+      energy_weight: 5.0
+    # 5 bins (-1, -0.5, 0, +0.5, +1) so the squared-cost reward (which
+    # prefers small actions like 0.5 -> a^2 = 0.25 < |a| = 0.5) is actually
+    # distinguishable from the linear-cost reward used by dqn_minsteps.
+    # With 3 bins ({-1, 0, +1}) |a| equals a^2 and the two scenarios collapse.
+    discretize_action:
+      n_actions: 5
+    record_episode_stats: true
+train:
+  episodes: 120
+  max_steps_per_episode: 999
+  eval_every: 20
+  eval_episodes: 5
+  seeds: [7, 21]
+  save_every: 60
+dqn:
+  n_envs: 4
+  learning_rate: 0.0005
+  gamma: 0.99
+  epsilon_start: 1.0
+  epsilon_end: 0.02
+  epsilon_decay: 0.995
+  exploration_fraction: 0.25
+  batch_size: 64
+  replay_buffer_size: 100000
+  min_buffer_size: 2000
+  target_update_freq: 500
+  hidden_sizes: [256, 256]
+paths:
+  logs_dir: outputs/logs
+  models_dir: outputs/models
+  figures_dir: outputs/figures

@@ -6,7 +6,12 @@ from typing import Any
 
 import gymnasium as gym
 
-from .wrappers import ContinuousStepCostWrapper, EnergyShapingRewardWrapper, RecordEpisodeStatsWrapper
+from .wrappers import (
+    ContinuousStepCostWrapper,
+    DiscretizeActionWrapper,
+    EnergyShapingRewardWrapper,
+    RecordEpisodeStatsWrapper,
+)
 
 
 def make_continuous_env(
@@ -27,6 +32,14 @@ def make_continuous_env(
             else {}
         )
         env = EnergyShapingRewardWrapper(env, **kwargs)
+
+    if wrappers.get("discretize_action"):
+        kwargs = (
+            wrappers["discretize_action"]
+            if isinstance(wrappers["discretize_action"], dict)
+            else {}
+        )
+        env = DiscretizeActionWrapper(env, **kwargs)
 
     if wrappers.get("record_episode_stats"):
         env = RecordEpisodeStatsWrapper(env)

@@ -245,6 +245,44 @@ class ContinuousFuelCostWrapper(gym.Wrapper):
         return obs, reward, terminated, truncated, info
 
 
+class DqnReinforceActionWrapper(gym.ActionWrapper):
+    """Expose a Box(1,) continuous action space as Discrete(n_actions).
+
+    Maps each integer action index to an evenly spaced force value in
+    ``[low, high]``. The default ``n_actions=3`` reproduces the classic
+    MountainCar-v0 semantics (full-left / no-op / full-right) on top of
+    MountainCarContinuous-v0, allowing discrete-only agents (e.g., DQN) to
+    operate on the continuous environment with all its reward variants.
+    """
+
+    def __init__(self, env: gym.Env, n_actions: int = 3) -> None:
+        super().__init__(env)
+        if not isinstance(env.action_space, gym.spaces.Box):
+            raise TypeError(
+                "DiscretizeActionWrapper requires a Box action space."
+            )
+        if int(np.prod(env.action_space.shape)) != 1:
+            raise ValueError(
+                "DiscretizeActionWrapper currently supports 1-D Box actions only."
+            )
+        if int(n_actions) < 2:
+            raise ValueError("n_actions must be at least 2.")
+
+        self.n_actions = int(n_actions)
+        low = float(env.action_space.low[0])
+        high = float(env.action_space.high[0])
+        self._action_table = np.linspace(low, high, self.n_actions, dtype=np.float32)
+        self.action_space = gym.spaces.Discrete(self.n_actions)
+
+    def action(self, action: int) -> np.ndarray:
+        """Convert discrete index to continuous force vector."""
+        idx = int(action)
+        if idx < 0 or idx >= self.n_actions:
+            raise ValueError(
+                f"Discrete action {idx} outside [0, {self.n_actions - 1}]."
+            )
+        return np.array([self._action_table[idx]], dtype=np.float32)
+      
 class DiscretizeActionWrapper(gym.ActionWrapper):
     """Expose a Discrete(N) action space over a continuous Box(-1, 1) base env.
 

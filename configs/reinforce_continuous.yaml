@@ -1,0 +1,46 @@
+experiment_name: reinforce_continuous
+agent: reinforce
+env:
+  id: MountainCarContinuous-v0
+  wrappers:
+    # Lower energy_weight (was 5.0): with 5.0 the per-step shaping bonus
+    # 5*|v| integrates to ~+150 over a 999-step swinging trajectory, which
+    # exceeds the +100 goal bonus and traps REINFORCE in a "swing forever"
+    # local optimum. 0.5 keeps the bonus small enough that goal-reaching
+    # remains the dominant strategy while still giving useful gradient.
+    energy_shaping:
+      energy_weight: 0.5
+    record_episode_stats: true
+train:
+  episodes: 80
+  max_steps_per_episode: 999
+  eval_every: 20
+  eval_episodes: 5
+  seeds: [7, 21]
+  save_every: 40
+reinforce:
+  learning_rate: 0.0003
+  gamma: 0.99
+  entropy_coef: 0.0
+  value_fn_coef: 0.5
+  hidden_sizes: [128, 128]
+  batch_episodes: 2
+  # Behaviour-clone the continuous Gaussian policy from the discrete-action
+  # DQN teacher trained on the same MountainCarContinuous-v0 + energy_shaping
+  # reward variant. The teacher's DiscretizeActionWrapper action table maps
+  # its integer action to the continuous force the Gaussian student should
+  # imitate.
+  teacher_checkpoint: outputs/models/dqn_continuous_seed7_final.zip
+  teacher_pretrain_episodes: 40
+  teacher_env:
+    id: MountainCarContinuous-v0
+    wrappers:
+      energy_shaping:
+        energy_weight: 5.0
+      discretize_action:
+        n_actions: 5
+      record_episode_stats: true
+paths:
+  logs_dir: outputs/logs
+  models_dir: outputs/models
+  figures_dir: outputs/figures
