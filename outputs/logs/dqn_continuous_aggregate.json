@@ -1,0 +1,11 @@
+{
+  "experiment_name": "dqn_continuous",
+  "agent": "dqn",
+  "env_id": "MountainCarContinuous-v0",
+  "n_seeds": 2,
+  "reward_mean": 76.35586555055397,
+  "reward_std_across_seeds": 13.47848708218308,
+  "success_rate_mean": 0.6458333333333334,
+  "success_rate_std": 0.12916666666666665,
+  "episode_length_mean": 444.04583333333335
+}

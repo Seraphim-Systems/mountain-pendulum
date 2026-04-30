@@ -1,0 +1,12 @@
+{
+  "experiment_name": "reinforce_discrete",
+  "seed": 21,
+  "agent": "reinforce",
+  "env_id": "MountainCar-v0",
+  "reward_mean": -200.0,
+  "reward_std": 0.0,
+  "success_rate": 0.0,
+  "mean_episode_length": 200.0,
+  "eval_mean_reward_last": -200.0,
+  "final_model_path": "C:\\Users\\jmlar\\OneDrive\\Documentos\\GitHub\\mountain-pendulum\\outputs\\models\\reinforce_discrete_seed21_final"
+}

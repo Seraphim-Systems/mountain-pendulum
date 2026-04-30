@@ -1,0 +1,11 @@
+{
+  "experiment_name": "dqn_fuel",
+  "agent": "dqn",
+  "env_id": "MountainCar-v0",
+  "n_seeds": 2,
+  "reward_mean": -199.02062542698297,
+  "reward_std_across_seeds": 0.27029113993110343,
+  "success_rate_mean": 0.0016666666666666668,
+  "success_rate_std": 0.0016666666666666668,
+  "episode_length_mean": 199.925
+}

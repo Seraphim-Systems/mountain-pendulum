@@ -1,0 +1,12 @@
+{
+  "experiment_name": "dqn_continuous",
+  "seed": 21,
+  "agent": "dqn",
+  "env_id": "MountainCarContinuous-v0",
+  "reward_mean": 62.87737846837089,
+  "reward_std": 49.603870553376105,
+  "success_rate": 0.5166666666666667,
+  "mean_episode_length": 538.875,
+  "eval_mean_reward_last": 101.43655821990922,
+  "final_model_path": "C:\\Users\\jmlar\\OneDrive\\Documentos\\GitHub\\mountain-pendulum\\outputs\\models\\dqn_continuous_seed21_final"
+}

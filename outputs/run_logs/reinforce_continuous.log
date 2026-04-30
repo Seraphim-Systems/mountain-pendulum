@@ -1,0 +1,26 @@
+                     reinforce_continuous_seed7                     
+  Agent: reinforce | Env: MountainCarContinuous-v0 | Device: CUDA   
+                                                                    
+    Gen   Train Reward   Eval Reward   Success   Best Ever     ETA  
+ ────────────────────────────────────────────────────────────────── 
+  20/80            5.2           2.5      0.0%         n/a   9m40s  
+  40/80            6.1           2.6      0.0%         n/a   6m24s  
+  60/80            5.8           2.9      0.0%         n/a   3m11s  
+  80/80            6.3           3.0      0.0%         n/a   0m00s  
+                                                                    
+
+  Done in 12m43s  |  best_fitness=nan  |  final_eval=3.0  |  success_rate=0.0%
+                    reinforce_continuous_seed21                     
+  Agent: reinforce | Env: MountainCarContinuous-v0 | Device: CUDA   
+                                                                    
+    Gen   Train Reward   Eval Reward   Success   Best Ever     ETA  
+ ────────────────────────────────────────────────────────────────── 
+  20/80            4.5           2.0      0.0%         n/a   9m24s  
+  40/80            4.9           2.4      0.0%         n/a   6m16s  
+  60/80            5.2           2.8      0.0%         n/a   3m09s  
+  80/80            3.8           1.8      0.0%         n/a   0m00s  
+                                                                    
+
+  Done in 12m36s  |  best_fitness=nan  |  final_eval=1.8  |  success_rate=0.0%
+Training complete.
+{'experiment_name': 'reinforce_continuous', 'agent': 'reinforce', 'env_id': 'MountainCarContinuous-v0', 'n_seeds': 2, 'reward_mean': 5.221983812433097, 'reward_std_across_seeds': 0.6426093915060407, 'success_rate_mean': 0.0, 'success_rate_std': 0.0, 'episode_length_mean': 999.0}
