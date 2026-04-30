@@ -1,0 +1,8 @@
+{
+  "experiment_name": "q_learning_discrete_separate",
+  "algorithm": "q_learning",
+  "n_seeds": 3,
+  "mean_reward": -197.77333333333334,
+  "std_reward_across_seeds": 0.5939108144793808,
+  "mean_success_rate": 0.11183333333333333
+}

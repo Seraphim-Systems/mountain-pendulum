@@ -1,0 +1,232 @@
+PLAN: {
+  "agent": "q_learning",
+  "scenario": "discrete_minfuel",
+  "experiment_name": "q_learning_discrete_minfuel",
+  "env_id": "MountainCar-v0",
+  "wrappers": {
+    "discretize_state": {
+      "n_bins": 24
+    },
+    "discrete_fuel_only": {
+      "goal_bonus": 200.0,
+      "fuel_cost": 1.0,
+      "idle_cost": 1.0
+    },
+    "record_episode_stats": true
+  },
+  "episodes": 3000,
+  "seeds": [
+    7,
+    21,
+    42
+  ]
+}
+-- Running q_learning_discrete_minfuel seed=7
+   done: mean_reward=-134.22 success_rate=0.28
+-- Running q_learning_discrete_minfuel seed=21
+   done: mean_reward=-155.73 success_rate=0.19
+-- Running q_learning_discrete_minfuel seed=42
+   done: mean_reward=-142.42 success_rate=0.24
+AGGREGATE: {
+  "experiment_name": "q_learning_discrete_minfuel",
+  "algorithm": "q_learning",
+  "n_seeds": 3,
+  "mean_reward": -144.1212222222222,
+  "std_reward_across_seeds": 8.865235307747247,
+  "mean_success_rate": 0.23866666666666667,
+  "mean_episode_length": 192.7878888888889
+}
+PLAN: {
+  "agent": "sarsa",
+  "scenario": "discrete_minfuel",
+  "experiment_name": "sarsa_discrete_minfuel",
+  "env_id": "MountainCar-v0",
+  "wrappers": {
+    "discretize_state": {
+      "n_bins": 24
+    },
+    "discrete_fuel_only": {
+      "goal_bonus": 200.0,
+      "fuel_cost": 1.0,
+      "idle_cost": 1.0
+    },
+    "record_episode_stats": true
+  },
+  "episodes": 3000,
+  "seeds": [
+    7,
+    21,
+    42
+  ]
+}
+-- Running sarsa_discrete_minfuel seed=7
+   done: mean_reward=-115.50 success_rate=0.35
+-- Running sarsa_discrete_minfuel seed=21
+   done: mean_reward=-115.45 success_rate=0.35
+-- Running sarsa_discrete_minfuel seed=42
+   done: mean_reward=-117.89 success_rate=0.35
+AGGREGATE: {
+  "experiment_name": "sarsa_discrete_minfuel",
+  "algorithm": "sarsa",
+  "n_seeds": 3,
+  "mean_reward": -116.27822222222223,
+  "std_reward_across_seeds": 1.1379916140201756,
+  "mean_success_rate": 0.3504444444444445,
+  "mean_episode_length": 187.23377777777782
+}
+PLAN: {
+  "agent": "q_learning",
+  "scenario": "continuous_minfuel",
+  "experiment_name": "q_learning_continuous_minfuel",
+  "env_id": "MountainCarContinuous-v0",
+  "wrappers": {
+    "discretize_state": {
+      "n_bins": 24
+    },
+    "discretize_action": {
+      "n_actions": 5
+    },
+    "continuous_fuel_cost": {
+      "goal_bonus": 200.0
+    },
+    "record_episode_stats": true
+  },
+  "episodes": 3000,
+  "seeds": [
+    7,
+    21,
+    42
+  ]
+}
+-- Running q_learning_continuous_minfuel seed=7
+   done: mean_reward=133.85 success_rate=0.78
+-- Running q_learning_continuous_minfuel seed=21
+   done: mean_reward=121.12 success_rate=0.72
+-- Running q_learning_continuous_minfuel seed=42
+   done: mean_reward=122.62 success_rate=0.73
+AGGREGATE: {
+  "experiment_name": "q_learning_continuous_minfuel",
+  "algorithm": "q_learning",
+  "n_seeds": 3,
+  "mean_reward": 125.8605222222222,
+  "std_reward_across_seeds": 5.681366469894967,
+  "mean_success_rate": 0.7463333333333333,
+  "mean_episode_length": 461.4728888888889
+}
+PLAN: {
+  "agent": "sarsa",
+  "scenario": "continuous_minfuel",
+  "experiment_name": "sarsa_continuous_minfuel",
+  "env_id": "MountainCarContinuous-v0",
+  "wrappers": {
+    "discretize_state": {
+      "n_bins": 24
+    },
+    "discretize_action": {
+      "n_actions": 5
+    },
+    "continuous_fuel_cost": {
+      "goal_bonus": 200.0
+    },
+    "record_episode_stats": true
+  },
+  "episodes": 3000,
+  "seeds": [
+    7,
+    21,
+    42
+  ]
+}
+-- Running sarsa_continuous_minfuel seed=7
+   done: mean_reward=166.07 success_rate=0.91
+-- Running sarsa_continuous_minfuel seed=21
+   done: mean_reward=161.67 success_rate=0.90
+-- Running sarsa_continuous_minfuel seed=42
+   done: mean_reward=161.91 success_rate=0.90
+AGGREGATE: {
+  "experiment_name": "sarsa_continuous_minfuel",
+  "algorithm": "sarsa",
+  "n_seeds": 3,
+  "mean_reward": 163.2169,
+  "std_reward_across_seeds": 2.0165841154706405,
+  "mean_success_rate": 0.9013333333333334,
+  "mean_episode_length": 345.5507777777778
+}
+PLAN: {
+  "agent": "q_learning",
+  "scenario": "continuous_mintime",
+  "experiment_name": "q_learning_continuous_mintime",
+  "env_id": "MountainCarContinuous-v0",
+  "wrappers": {
+    "discretize_state": {
+      "n_bins": 24
+    },
+    "discretize_action": {
+      "n_actions": 5
+    },
+    "step_cost": {
+      "goal_bonus": 200.0
+    },
+    "record_episode_stats": true
+  },
+  "episodes": 3000,
+  "seeds": [
+    7,
+    21,
+    42
+  ]
+}
+-- Running q_learning_continuous_mintime seed=7
+   done: mean_reward=116.88 success_rate=0.73
+-- Running q_learning_continuous_mintime seed=21
+   done: mean_reward=121.33 success_rate=0.74
+-- Running q_learning_continuous_mintime seed=42
+   done: mean_reward=116.61 success_rate=0.73
+AGGREGATE: {
+  "experiment_name": "q_learning_continuous_mintime",
+  "algorithm": "q_learning",
+  "n_seeds": 3,
+  "mean_reward": 118.27162777777774,
+  "std_reward_across_seeds": 2.168195955394173,
+  "mean_success_rate": 0.7318888888888888,
+  "mean_episode_length": 472.9448888888889
+}
+PLAN: {
+  "agent": "sarsa",
+  "scenario": "continuous_mintime",
+  "experiment_name": "sarsa_continuous_mintime",
+  "env_id": "MountainCarContinuous-v0",
+  "wrappers": {
+    "discretize_state": {
+      "n_bins": 24
+    },
+    "discretize_action": {
+      "n_actions": 5
+    },
+    "step_cost": {
+      "goal_bonus": 200.0
+    },
+    "record_episode_stats": true
+  },
+  "episodes": 3000,
+  "seeds": [
+    7,
+    21,
+    42
+  ]
+}
+-- Running sarsa_continuous_mintime seed=7
+   done: mean_reward=164.60 success_rate=0.92
+-- Running sarsa_continuous_mintime seed=21
+   done: mean_reward=160.73 success_rate=0.91
+-- Running sarsa_continuous_mintime seed=42
+   done: mean_reward=165.59 success_rate=0.92
+AGGREGATE: {
+  "experiment_name": "sarsa_continuous_mintime",
+  "algorithm": "sarsa",
+  "n_seeds": 3,
+  "mean_reward": 163.63848888888887,
+  "std_reward_across_seeds": 2.0998592427401,
+  "mean_success_rate": 0.9134444444444445,
+  "mean_episode_length": 324.4308888888889
+}

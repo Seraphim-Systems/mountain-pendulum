@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Sequence
 
 import numpy as np
 
@@ -19,6 +20,7 @@ class QLearningAgent:
         epsilon_start: float,
         epsilon_end: float,
         epsilon_decay: float,
+        optimistic_init: float | Sequence[float] = 0.0,
     ) -> None:
         self.n_bins = n_bins
         self.n_actions = n_actions
@@ -27,7 +29,14 @@ class QLearningAgent:
         self.epsilon = epsilon_start
         self.epsilon_end = epsilon_end
         self.epsilon_decay = epsilon_decay
-        self.q_table = np.zeros((n_bins, n_bins, n_actions), dtype=np.float32)
+        self.optimistic_init = optimistic_init
+
+        init_array = np.broadcast_to(
+            np.asarray(optimistic_init, dtype=np.float32), (n_actions,)
+        )
+        self.q_table = np.broadcast_to(
+            init_array, (n_bins, n_bins, n_actions)
+        ).astype(np.float32).copy()
 
     def select_action(self, state: tuple[int, int], deterministic: bool = False) -> int:
         """Select an action using epsilon-greedy exploration."""

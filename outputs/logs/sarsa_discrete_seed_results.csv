@@ -1,0 +1,4 @@
+experiment_name,seed,algorithm,episodes,mean_reward,std_reward,success_rate,mean_episode_length,last_eval_mean_reward,model_path,policy_path
+sarsa_discrete,7,sarsa,2000,-194.9715,12.289006784520872,0.2065,194.9715,-199.35,outputs\models\sarsa_discrete_seed7_final,outputs\models\sarsa_discrete_seed7_policy.npy
+sarsa_discrete,21,sarsa,2000,-195.515,11.776534931804006,0.181,195.515,-180.2,outputs\models\sarsa_discrete_seed21_final,outputs\models\sarsa_discrete_seed21_policy.npy
+sarsa_discrete,42,sarsa,2000,-195.562,11.715765275900674,0.178,195.562,-181.3,outputs\models\sarsa_discrete_seed42_final,outputs\models\sarsa_discrete_seed42_policy.npy
