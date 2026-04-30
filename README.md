@@ -214,6 +214,34 @@ The framework and notebooks support:
 
 Figures are saved in `outputs/figures/`.
 
+## Final Report Notebook
+
+The graded deliverable is `notebooks/00_final_report.ipynb`. It compares all
+nine algorithms across all four scenarios using cached results from `outputs/`.
+
+**View cached results.** Open the notebook in Jupyter and run all cells; no
+training is required. Cells render figures from `outputs/figures/` and a status
+matrix (`done` / `pending` / `n/a`) from `outputs/logs/`.
+
+**Contribute new training runs.** Train locally and commit your logs and
+figures:
+
+```bash
+python -m src.training.train --config configs/<algo>_<scenario>.yaml
+git add outputs/logs outputs/figures
+git commit -m "results: <algo> <scenario>"
+```
+
+The notebook auto-detects the new files on the next run, so no notebook edits
+are needed.
+
+**Re-run every experiment from scratch.** Flip `RUN_FULL_TRAINING = True` in
+section 9.3 of the notebook and re-execute that cell. This takes hours.
+
+**Source of truth.** The notebook is built from
+`notebooks/_build_final_report.py`. Edit that script, then run
+`python notebooks/_build_final_report.py` to regenerate the `.ipynb`.
+
 ## Render trained MountainCar policies
 
 Use the rollout renderer to watch a trained tabular policy in a live window or export a GIF. The command loads the policy table saved by the standalone Q-learning or SARSA trainers.

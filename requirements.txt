@@ -8,6 +8,7 @@ seaborn>=0.13.2
 pandas>=2.2.1
 scipy>=1.14.0
 pyyaml>=6.0.1
+nbformat>=5.9
 tqdm>=4.66.2
 ipykernel>=6.29.3
 jupyter>=1.0.0
