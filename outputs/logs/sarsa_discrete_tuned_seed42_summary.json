@@ -1,0 +1,13 @@
+{
+  "experiment_name": "sarsa_discrete_tuned",
+  "seed": 42,
+  "algorithm": "sarsa",
+  "episodes": 5000,
+  "mean_reward": -197.5836,
+  "std_reward": 8.569936466508954,
+  "success_rate": 0.1026,
+  "mean_episode_length": 197.5836,
+  "last_eval_mean_reward": -198.06666666666666,
+  "model_path": "outputs\\models\\sarsa_discrete_tuned_seed42_final",
+  "policy_path": "outputs\\models\\sarsa_discrete_tuned_seed42_policy.npy"
+}

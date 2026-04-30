@@ -1,0 +1,4 @@
+experiment_name,seed,algorithm,episodes,mean_reward,std_reward,success_rate,mean_episode_length,last_eval_mean_reward,model_path,policy_path
+q_learning_discrete_separate,7,q_learning,2000,-196.9705,9.645394224706422,0.1235,196.9705,-200.0,outputs\models\q_learning_discrete_separate_seed7_final,outputs\models\q_learning_discrete_separate_seed7_policy.npy
+q_learning_discrete_separate,21,q_learning,2000,-197.961,7.826460183250151,0.106,197.961,-181.45,outputs\models\q_learning_discrete_separate_seed21_final,outputs\models\q_learning_discrete_separate_seed21_policy.npy
+q_learning_discrete_separate,42,q_learning,2000,-198.3885,6.241439557505944,0.106,198.3885,-194.45,outputs\models\q_learning_discrete_separate_seed42_final,outputs\models\q_learning_discrete_separate_seed42_policy.npy

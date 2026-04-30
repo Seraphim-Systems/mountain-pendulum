@@ -1,0 +1,9 @@
+{
+  "experiment_name": "q_learning_continuous_mintime",
+  "algorithm": "q_learning",
+  "n_seeds": 3,
+  "mean_reward": 118.27162777777774,
+  "std_reward_across_seeds": 2.168195955394173,
+  "mean_success_rate": 0.7318888888888888,
+  "mean_episode_length": 472.9448888888889
+}

@@ -1,0 +1,9 @@
+{
+  "experiment_name": "q_learning_discrete_minfuel",
+  "algorithm": "q_learning",
+  "n_seeds": 3,
+  "mean_reward": -144.1212222222222,
+  "std_reward_across_seeds": 8.865235307747247,
+  "mean_success_rate": 0.23866666666666667,
+  "mean_episode_length": 192.7878888888889
+}

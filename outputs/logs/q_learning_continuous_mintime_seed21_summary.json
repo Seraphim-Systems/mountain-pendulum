@@ -1,0 +1,13 @@
+{
+  "experiment_name": "q_learning_continuous_mintime",
+  "seed": 21,
+  "algorithm": "q_learning",
+  "episodes": 3000,
+  "mean_reward": 121.33394999999997,
+  "std_reward": 106.86373988978129,
+  "success_rate": 0.7363333333333333,
+  "mean_episode_length": 445.1186666666667,
+  "last_eval_mean_reward": 191.3025,
+  "model_path": "C:\\Users\\hugok\\OneDrive\\Dokumenty\\GitHub\\mountain-pendulum\\outputs\\models\\q_learning_continuous_mintime_seed21_final",
+  "policy_path": "C:\\Users\\hugok\\OneDrive\\Dokumenty\\GitHub\\mountain-pendulum\\outputs\\models\\q_learning_continuous_mintime_seed21_policy.npy"
+}

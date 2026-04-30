@@ -1,0 +1,6 @@
+experiment_name,seed,algorithm,episodes,mean_reward,std_reward,success_rate,mean_episode_length,last_eval_mean_reward,model_path,policy_path
+sarsa_discrete_tuned,7,sarsa,5000,-197.3168,9.20576111790872,0.1176,197.3168,-195.63333333333333,outputs\models\sarsa_discrete_tuned_seed7_final,outputs\models\sarsa_discrete_tuned_seed7_policy.npy
+sarsa_discrete_tuned,21,sarsa,5000,-197.3532,8.953705923247647,0.1174,197.3532,-196.26666666666668,outputs\models\sarsa_discrete_tuned_seed21_final,outputs\models\sarsa_discrete_tuned_seed21_policy.npy
+sarsa_discrete_tuned,42,sarsa,5000,-197.5836,8.569936466508954,0.1026,197.5836,-198.06666666666666,outputs\models\sarsa_discrete_tuned_seed42_final,outputs\models\sarsa_discrete_tuned_seed42_policy.npy
+sarsa_discrete_tuned,84,sarsa,5000,-197.4472,8.660370209176973,0.1106,197.4472,-198.13333333333333,outputs\models\sarsa_discrete_tuned_seed84_final,outputs\models\sarsa_discrete_tuned_seed84_policy.npy
+sarsa_discrete_tuned,126,sarsa,5000,-197.2468,8.95081503328049,0.1254,197.2468,-172.13333333333333,outputs\models\sarsa_discrete_tuned_seed126_final,outputs\models\sarsa_discrete_tuned_seed126_policy.npy

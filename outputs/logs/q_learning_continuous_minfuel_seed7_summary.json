@@ -1,0 +1,13 @@
+{
+  "experiment_name": "q_learning_continuous_minfuel",
+  "seed": 7,
+  "algorithm": "q_learning",
+  "episodes": 3000,
+  "mean_reward": 133.8481833333333,
+  "std_reward": 95.69593980214829,
+  "success_rate": 0.7846666666666666,
+  "mean_episode_length": 443.541,
+  "last_eval_mean_reward": 191.96375000000003,
+  "model_path": "C:\\Users\\hugok\\OneDrive\\Dokumenty\\GitHub\\mountain-pendulum\\outputs\\models\\q_learning_continuous_minfuel_seed7_final",
+  "policy_path": "C:\\Users\\hugok\\OneDrive\\Dokumenty\\GitHub\\mountain-pendulum\\outputs\\models\\q_learning_continuous_minfuel_seed7_policy.npy"
+}

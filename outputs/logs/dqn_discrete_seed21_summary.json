@@ -1,0 +1,12 @@
+{
+  "experiment_name": "dqn_discrete",
+  "seed": 21,
+  "agent": "dqn",
+  "env_id": "MountainCar-v0",
+  "reward_mean": -193.94666666666666,
+  "reward_std": 21.7696383882589,
+  "success_rate": 0.09,
+  "mean_episode_length": 193.94666666666666,
+  "eval_mean_reward_last": -123.7,
+  "final_model_path": "C:\\Users\\hugok\\OneDrive\\Dokumenty\\GitHub\\mountain-pendulum\\outputs\\models\\dqn_discrete_seed21_final"
+}
