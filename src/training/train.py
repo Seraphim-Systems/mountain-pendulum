@@ -6,11 +6,13 @@ import argparse
 from pathlib import Path
 from typing import Any
 
+import gymnasium as gym
 import numpy as np
 import pandas as pd
 from rich.live import Live
 from rich.table import Table
 from rich import box
+from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
 
 from src.agents.cma_es import CMAESAgent
 from src.agents.dqn import DQNBaseline
@@ -37,6 +39,36 @@ def build_env(env_cfg: dict[str, Any], render_mode: str | None = None) -> Any:
     raise ValueError(f"Unsupported environment id: {env_id}")
 
 
+def _make_env_factory(env_cfg: dict[str, Any], rank: int, base_seed: int):
+    """Return a picklable closure that builds and seeds an env.
+
+    Closures over a top-level ``build_env`` rather than lambdas so the
+    function is picklable for ``SubprocVecEnv`` on Windows (spawn-start).
+    """
+
+    def _init() -> Any:
+        env = build_env(env_cfg)
+        env.reset(seed=int(base_seed) + int(rank))
+        if hasattr(env, "action_space"):
+            env.action_space.seed(int(base_seed) + int(rank))
+        return env
+
+    return _init
+
+
+def build_vec_env(env_cfg: dict[str, Any], n_envs: int, base_seed: int) -> Any:
+    """Build a SubprocVecEnv (n_envs >= 2) or DummyVecEnv (n_envs == 1).
+
+    Each sub-env is seeded with ``base_seed + rank`` for diverse rollouts in
+    parallel. Returns an SB3-compatible vector env.
+    """
+    n = max(1, int(n_envs))
+    factories = [_make_env_factory(env_cfg, rank, base_seed) for rank in range(n)]
+    if n == 1:
+        return DummyVecEnv(factories)
+    return SubprocVecEnv(factories, start_method="spawn")
+
+
 def build_agent(config: dict[str, Any], env: Any) -> Any:
     """Build an agent based on top-level config 'agent' field."""
     agent_name = config["agent"]
@@ -58,6 +90,13 @@ def build_agent(config: dict[str, Any], env: Any) -> Any:
 
     if agent_name == "dqn":
         dqn_cfg = config["dqn"]
+        # Pre-compute the full training horizon so the exploration schedule
+        # sees the real budget (otherwise SB3 latches it to the first
+        # learn(max_steps_per_episode) call and disables exploration).
+        train_cfg = config.get("train", {})
+        episodes = int(train_cfg.get("episodes", 0))
+        max_steps = int(train_cfg.get("max_steps_per_episode", 0))
+        total_budget = episodes * max_steps if (episodes and max_steps) else None
         return DQNBaseline(
             env=env,
             learning_rate=float(dqn_cfg["learning_rate"]),
@@ -75,10 +114,25 @@ def build_agent(config: dict[str, Any], env: Any) -> Any:
                 if "exploration_fraction" in dqn_cfg
                 else None
             ),
+            total_timesteps_budget=total_budget,
         )
 
     if agent_name == "reinforce":
         reinforce_cfg = config["reinforce"]
+        # If the YAML provides ``teacher_env`` it takes precedence; otherwise
+        # the teacher is assumed to share the student's env config.
+        teacher_env_cfg = reinforce_cfg.get("teacher_env")
+        student_env_cfg = config["env"]
+
+        teacher_env_factory: Any = None
+        if reinforce_cfg.get("teacher_checkpoint") is not None:
+            cfg_for_teacher = teacher_env_cfg if teacher_env_cfg is not None else student_env_cfg
+
+            def _teacher_env_factory(_cfg: dict[str, Any] = cfg_for_teacher) -> Any:
+                return build_env(_cfg)
+
+            teacher_env_factory = _teacher_env_factory
+
         return REINFORCEBaseline(
             env=env,
             learning_rate=float(reinforce_cfg["learning_rate"]),
@@ -89,6 +143,7 @@ def build_agent(config: dict[str, Any], env: Any) -> Any:
             batch_episodes=int(reinforce_cfg.get("batch_episodes", 8)),
             teacher_checkpoint=reinforce_cfg.get("teacher_checkpoint"),
             teacher_pretrain_episodes=int(reinforce_cfg.get("teacher_pretrain_episodes", 64)),
+            teacher_env_factory=teacher_env_factory,
         )
 
     if agent_name == "sac":
@@ -136,6 +191,16 @@ def build_agent(config: dict[str, Any], env: Any) -> Any:
     raise ValueError(f"Unsupported agent type: {agent_name}")
 
 
+def _coerce_env_action(action: Any, env: Any) -> Any:
+    """Cast agent action to a type the env's action space accepts."""
+    if isinstance(env.action_space, gym.spaces.Discrete):
+        return int(np.asarray(action).item())
+    if isinstance(env.action_space, gym.spaces.Box):
+        arr = np.asarray(action, dtype=np.float32).reshape(env.action_space.shape)
+        return np.clip(arr, env.action_space.low, env.action_space.high)
+    return action
+
+
 def rollout_episode(
     env: Any, agent: Any, deterministic: bool = True, episode_idx: int | None = None, custom_renderer: Any = None
 ) -> tuple[float, int, bool]:
@@ -152,7 +217,8 @@ def rollout_episode(
         else:
             action = agent.predict(obs, deterministic=deterministic)
 
-        obs, reward, terminated, truncated, _ = env.step(int(action))
+        env_action = _coerce_env_action(action, env)
+        obs, reward, terminated, truncated, _ = env.step(env_action)
         total_reward += float(reward)
         steps += 1
         done = bool(terminated or truncated)
@@ -171,19 +237,31 @@ def train_single_seed(
     output_paths = ensure_paths(config, project_root)
     seed_everything(seed)
 
-    env = build_env(config["env"])
-    seed_env(env, seed)
-    
-    # Custom Renderer takes over visually
-    eval_env = build_env(config["env"], render_mode=None) if render else None
-    if eval_env:
+    # DQN can optionally collect transitions from N parallel envs via
+    # SubprocVecEnv. Other agents always use a single env.
+    n_envs = 1
+    if config.get("agent") == "dqn":
+        n_envs = max(1, int(config.get("dqn", {}).get("n_envs", 1)))
+
+    if n_envs > 1:
+        env = build_vec_env(config["env"], n_envs=n_envs, base_seed=seed)
+        # Vec envs cannot be used directly by ``rollout_episode`` (they return
+        # stacked obs and never report the standard ``terminated/truncated``
+        # tuple); always build a separate single-env evaluator.
+        eval_env = build_env(config["env"], render_mode=None)
         seed_env(eval_env, seed)
-        
+    else:
+        env = build_env(config["env"])
+        seed_env(env, seed)
+        eval_env = build_env(config["env"], render_mode=None) if render else None
+        if eval_env:
+            seed_env(eval_env, seed)
+
     custom_renderer = None
     if render:
         from src.visualization.custom_renderer import NeonMountainCarRenderer
         custom_renderer = NeonMountainCarRenderer()
-        
+
     agent = build_agent(config, env)
 
     run_name = f"{config['experiment_name']}_seed{seed}"
@@ -269,8 +347,13 @@ def train_single_seed(
                 agent.on_episode_end()
             else:
                 agent.learn(total_timesteps=max_steps)
+                rollout_env = eval_env if eval_env is not None else env
                 ep_reward, ep_len, ep_success = rollout_episode(
-                    env, agent, deterministic=True, episode_idx=episode, custom_renderer=custom_renderer
+                    rollout_env,
+                    agent,
+                    deterministic=True,
+                    episode_idx=episode,
+                    custom_renderer=custom_renderer,
                 )
 
             rewards.append(ep_reward)
