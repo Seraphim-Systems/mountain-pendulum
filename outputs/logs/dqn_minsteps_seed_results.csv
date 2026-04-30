@@ -1,0 +1,3 @@
+experiment_name,seed,agent,env_id,reward_mean,reward_std,success_rate,mean_episode_length,eval_mean_reward_last,final_model_path
+dqn_minsteps,7,dqn,MountainCarContinuous-v0,83.08624255281934,37.8104063762875,0.77,299.66,104.09529728791793,C:\Users\jmlar\OneDrive\Documentos\GitHub\mountain-pendulum\outputs\models\dqn_minsteps_seed7_final
+dqn_minsteps,21,dqn,MountainCarContinuous-v0,82.66225605471793,37.99926468198265,0.77,293.3,101.01123767097945,C:\Users\jmlar\OneDrive\Documentos\GitHub\mountain-pendulum\outputs\models\dqn_minsteps_seed21_final

@@ -1,0 +1,12 @@
+{
+  "experiment_name": "reinforce_fuel",
+  "agent": "reinforce",
+  "env_id": "MountainCar-v0",
+  "n_seeds": 2,
+  "reward_mean": -198.83445273346015,
+  "reward_std_across_seeds": 0.019715588619249047,
+  "success_rate_mean": 0.0,
+  "success_rate_std": 0.0,
+  "episode_length_mean": 200.0,
+  "_student_eval": true
+}

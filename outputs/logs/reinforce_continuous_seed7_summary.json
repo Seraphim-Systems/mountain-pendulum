@@ -1,0 +1,12 @@
+{
+  "experiment_name": "reinforce_continuous",
+  "seed": 7,
+  "agent": "reinforce",
+  "env_id": "MountainCarContinuous-v0",
+  "reward_mean": 5.864593203939137,
+  "reward_std": 0.7116313365061945,
+  "success_rate": 0.0,
+  "mean_episode_length": 999.0,
+  "eval_mean_reward_last": 2.9588079437714425,
+  "final_model_path": "C:\\Users\\jmlar\\OneDrive\\Documentos\\GitHub\\mountain-pendulum\\outputs\\models\\reinforce_continuous_seed7_final"
+}

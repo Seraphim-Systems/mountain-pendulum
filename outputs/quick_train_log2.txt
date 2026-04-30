@@ -1,0 +1,32 @@
+
+=== configs/reinforce_continuous.yaml (1 seed, 30 episodes) ===
+                  reinforce_continuous_smoke_seed7                  
+  Agent: reinforce | Env: MountainCarContinuous-v0 | Device: CUDA   
++------------------------------------------------------------------+
+|   Gen | Train Reward | Eval Reward | Success | Best Ever |   ETA |
+|-------+--------------+-------------+---------+-----------+-------|
+| 15/30 |         -0.5 |        -1.9 |    0.0% |       n/a | 2m20s |
+| 30/30 |         -1.1 |        -1.6 |    0.0% |       n/a | 0m00s |
++------------------------------------------------------------------+
+
+  Done in 4m40s  |  best_fitness=nan  |  final_eval=-1.6  |  success_rate=0.0%
+[PASS] configs/reinforce_continuous.yaml (283.6s) — reward_mean=-0.78  success_rate=0%  eval_last=-1.57  len_mean=999
+
+=== configs/reinforce_minsteps.yaml (1 seed, 30 episodes) ===
+                   reinforce_minsteps_smoke_seed7                   
+  Agent: reinforce | Env: MountainCarContinuous-v0 | Device: CUDA   
++------------------------------------------------------------------+
+|   Gen | Train Reward | Eval Reward | Success | Best Ever |   ETA |
+|-------+--------------+-------------+---------+-----------+-------|
+| 15/30 |         -5.3 |       -15.3 |    0.0% |       n/a | 2m22s |
+| 30/30 |         -8.8 |       -12.2 |    0.0% |       n/a | 0m00s |
++------------------------------------------------------------------+
+
+  Done in 4m44s  |  best_fitness=nan  |  final_eval=-12.2  |  success_rate=0.0%
+[PASS] configs/reinforce_minsteps.yaml (284.2s) — reward_mean=-7.05  success_rate=0%  eval_last=-12.15  len_mean=999
+
+--- Summary ---
+  PASS   283.6s  configs/reinforce_continuous.yaml
+  PASS   284.2s  configs/reinforce_minsteps.yaml
+
+2/2 configs ran cleanly

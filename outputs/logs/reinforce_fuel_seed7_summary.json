@@ -1,0 +1,14 @@
+{
+  "experiment_name": "reinforce_fuel",
+  "seed": 7,
+  "agent": "reinforce",
+  "env_id": "MountainCar-v0",
+  "reward_mean": -198.8541683220794,
+  "reward_std": 0.3858611546303135,
+  "success_rate": 0.0,
+  "mean_episode_length": 200.0,
+  "eval_mean_reward_last": -198.8541683220794,
+  "final_model_path": "C:\\Users\\jmlar\\OneDrive\\Documentos\\GitHub\\mountain-pendulum\\outputs\\models\\reinforce_fuel_seed7_final",
+  "_student_eval": true,
+  "_n_eval_episodes": 30
+}

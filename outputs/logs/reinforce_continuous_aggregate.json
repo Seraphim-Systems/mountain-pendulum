@@ -1,0 +1,11 @@
+{
+  "experiment_name": "reinforce_continuous",
+  "agent": "reinforce",
+  "env_id": "MountainCarContinuous-v0",
+  "n_seeds": 2,
+  "reward_mean": 5.221983812433097,
+  "reward_std_across_seeds": 0.6426093915060407,
+  "success_rate_mean": 0.0,
+  "success_rate_std": 0.0,
+  "episode_length_mean": 999.0
+}

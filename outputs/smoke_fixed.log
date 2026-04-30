@@ -1,0 +1,60 @@
+
+=== configs/dqn_fuel.yaml (1 seed, 30 episodes) ===
+                        dqn_fuel_smoke_seed7                        
+                  Agent: dqn | Env: MountainCar-v0                  
++------------------------------------------------------------------+
+|   Gen | Train Reward | Eval Reward | Success | Best Ever |   ETA |
+|-------+--------------+-------------+---------+-----------+-------|
+| 15/30 |       -199.1 |      -198.9 |    0.0% |       n/a | 0m04s |
+| 30/30 |       -199.3 |      -199.2 |    0.0% |       n/a | 0m00s |
++------------------------------------------------------------------+
+
+  Done in 0m10s  |  best_fitness=nan  |  final_eval=-199.2  |  success_rate=0.0%
+[PASS] configs/dqn_fuel.yaml (20.9s) — reward_mean=-199.16  success_rate=0%  eval_last=-199.18  len_mean=200
+
+=== configs/dqn_continuous.yaml (1 seed, 30 episodes) ===
+                     dqn_continuous_smoke_seed7                     
+             Agent: dqn | Env: MountainCarContinuous-v0             
++------------------------------------------------------------------+
+|   Gen | Train Reward | Eval Reward | Success | Best Ever |   ETA |
+|-------+--------------+-------------+---------+-----------+-------|
+| 15/30 |         21.9 |        23.1 |    0.0% |       n/a | 0m25s |
+| 30/30 |          9.0 |        20.4 |    0.0% |       n/a | 0m00s |
++------------------------------------------------------------------+
+
+  Done in 0m54s  |  best_fitness=nan  |  final_eval=20.4  |  success_rate=3.3%
+[PASS] configs/dqn_continuous.yaml (61.9s) — reward_mean=15.46  success_rate=3%  eval_last=20.43  len_mean=981
+
+=== configs/reinforce_fuel.yaml (1 seed, 30 episodes) ===
+                     reinforce_fuel_smoke_seed7                     
+       Agent: reinforce | Env: MountainCar-v0 | Device: CUDA        
++------------------------------------------------------------------+
+|   Gen | Train Reward | Eval Reward | Success | Best Ever |   ETA |
+|-------+--------------+-------------+---------+-----------+-------|
+| 15/30 |       -198.8 |      -199.0 |    0.0% |       n/a | 0m31s |
+| 30/30 |       -198.4 |      -199.0 |    0.0% |       n/a | 0m00s |
++------------------------------------------------------------------+
+
+  Done in 1m01s  |  best_fitness=nan  |  final_eval=-199.0  |  success_rate=0.0%
+[PASS] configs/reinforce_fuel.yaml (61.6s) — reward_mean=-198.62  success_rate=0%  eval_last=-199.02  len_mean=200
+
+=== configs/reinforce_continuous.yaml (1 seed, 30 episodes) ===
+                  reinforce_continuous_smoke_seed7                  
+  Agent: reinforce | Env: MountainCarContinuous-v0 | Device: CUDA   
++------------------------------------------------------------------+
+|   Gen | Train Reward | Eval Reward | Success | Best Ever |   ETA |
+|-------+--------------+-------------+---------+-----------+-------|
+| 15/30 |         37.2 |        13.2 |    0.0% |       n/a | 2m24s |
+| 30/30 |         35.9 |        17.5 |    0.0% |       n/a | 0m00s |
++------------------------------------------------------------------+
+
+  Done in 4m46s  |  best_fitness=nan  |  final_eval=17.5  |  success_rate=0.0%
+[PASS] configs/reinforce_continuous.yaml (286.8s) — reward_mean=36.57  success_rate=0%  eval_last=17.47  len_mean=999
+
+--- Summary ---
+  PASS    20.9s  configs/dqn_fuel.yaml
+  PASS    61.9s  configs/dqn_continuous.yaml
+  PASS    61.6s  configs/reinforce_fuel.yaml
+  PASS   286.8s  configs/reinforce_continuous.yaml
+
+4/4 configs ran cleanly
